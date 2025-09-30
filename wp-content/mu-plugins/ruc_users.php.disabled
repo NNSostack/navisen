@@ -1,0 +1,296 @@
+<?php
+/*
+Plugin Name: RUC users
+Description: Plugin to handle RUC users.
+Version: 0.5
+ */
+
+return;
+
+defined('ABSPATH') or die(' - ');
+class RUC_User{
+
+
+	static function admin_init(){
+		global $current_blog;
+/*
+		$option = 'ruc_users_'.$current_blog->blog_id;
+		add_settings_field($option,
+			'RUC user',
+			array('RUC_User', 'users_setting'),
+			'users_page'
+			);
+		register_setting('users_page', $option, array('RUC_User', 'validate'));
+*/
+		add_settings_field('ruc_site_users',
+			'RUC site users',
+			array('RUC_User', 'sites_setting'),
+			'sites_page'
+			);
+		register_setting('sites_page', 'ruc_site_users', array('RUC_User', 'validate'));
+	
+	}
+
+	static function users_menu() {
+		$page = remove_submenu_page( 'users.php', 'user-new.php' );
+//		add_submenu_page('users.php','RUC user','RUC user','manage_options','ruc-users',array('RUC_User', 'users_page'));
+//		add_filter( 'manage_users_columns', array('RUC_User', 'users_add_column_headers'));	
+//		add_action( 'manage_users_custom_column', array('RUC_User', 'users_add_column'), 10, 3 );
+	}
+/*	
+	static function users_page() {
+		if (!current_user_can('manage_options'))  {
+			wp_die( __('You do not have sufficient permissions to access this page.') );
+		}
+		$savebtn = __('Save Changes');
+		$r = '';
+		echo <<<BEGIN
+<div class="wrap">
+<h2>RUC user</h2>
+<p>$r</p>
+<form method="post" action="options.php">
+	
+BEGIN;
+
+		settings_fields( 'users_page' );
+		do_settings_fields( 'users_page','default');
+		echo <<<END
+<p class="submit">
+<input type="submit" class="button-primary" value="$savebtn" />
+</p>
+</form>
+</div>
+	
+END;
+	}
+
+	static function users_setting() {
+		global $current_blog;
+		$option = 'ruc_users_'.$current_blog->blog_id;
+		$ruc_users = get_option($option);
+		echo '<p><select name="'.$option.'[role]">'; 
+		wp_dropdown_roles(@$ruc_users['role']);
+		echo '</select></p>';
+		echo '<p><textarea name="'.$option.'[userlist]" id="__1" class="code" rows="16" cols="80">'.@$ruc_users['userlist'].'</textarea></p>';
+	}
+*/
+	static function validate($ruc_users){
+		global $current_site,$wpdb, $current_user;
+		if (!current_user_can('manage_sites'))  {
+			wp_die( __('You do not have sufficient permissions to access this page.') );
+		}
+		$value = '';
+		$id = '';		
+		if(is_multisite()){
+			$path = '';
+			if(@$ruc_users['site'] != '/'){
+				if ( is_subdomain_install() ) {
+					$newdomain = $ruc_users['site']. '.' . preg_replace( '|^www\.|', '', $current_site->domain );
+					$path = $current_site->path;
+				} else {
+					$newdomain = $current_site->domain;
+					$path = $current_site->path . $ruc_users['site'].'/';
+				}
+				$id = domain_exists($newdomain,$path,$current_site->id);
+			} else {
+				$id = 1;
+			}
+//			wp_die('----> '.$newdomain.' - '.$path.' '.$current_user->user_login.' blog_id: '.print_r($id,true));
+
+		}
+
+		if($id){ 
+			$emails = explode("\n", @$ruc_users['userlist']);
+			$role = isset($ruc_users['role']) ? $ruc_users['role'] : 'subscriber';
+			foreach($emails as $email){
+				$email = trim($email);
+				if(preg_match('/^((\w+)(-\w+)?)(@ruc.dk)?$/',$email,$parts)){
+//				if(preg_match('/^(\w+)(@ruc.dk)?$/',$email,$parts)){
+//					$value .= $parts[1].';';
+					$username = sanitize_user($parts[1], true);
+					$newuser_id = username_exists($username);
+	
+					if(!$newuser_id ) {
+						$random_password = wp_generate_password( 12, false );
+						$newuser_id = wp_create_user( $username, $random_password, $username.'@ruc.dk' );
+
+                                               if(is_wp_error($newuser_id)){
+                                                       $msg = $newuser_id->get_error_message();
+                                                       error_log("wp_create_user: $username $msg  (blog: $id)");
+							$value .= '# error creating user: '.$username;
+							continue;
+						}
+						$rucusername =  RUC_User::add_user_data($newuser_id);
+						$value .= $rucusername ? "# user $username ($rucusername) created;" : "# user $username created;";
+					} else {
+						$value .= '# '. $username. ' exists;';
+					}
+					
+					add_user_to_blog( $id, $newuser_id, $role );
+					$umr = update_user_meta($newuser_id, 'ruc_user_'.$id.'_role',$role);
+					$value .= " role '$role' set\n";
+				} else {
+					if($email && (strpos($email,'#') != 0)) $value .= '"'.$email . "\" not created\n# ";
+				}
+			}
+		} else {
+			$value .= '# site not found: '.$newdomain.' - '.$path;
+		}
+/* ////	
+		$usernames = array('test2', 'sodos');
+		foreach($usernames as $username){
+			if ( is_subdomain_install() ) {
+				$newdomain = $username . '.' . preg_replace( '|^www\.|', '', $current_site->domain );
+				$path = $current_site->path;
+			} else {
+				$newdomain = $current_site->domain;
+				$path = $current_site->path . $username . '/';
+			}
+			$ruc_users['dbg'] .= RUC_User::create_site($newdomain, $path, $title, $username);
+		}
+*/ ////		
+		$ruc_users['userlist'] = $value;
+		return $ruc_users;
+	}
+
+	static function users_add_column_headers( $columns ) {
+		$columns['ruc_user'] = 'RUC User';
+		return $columns;
+	}
+
+	static function users_add_column($empty = '', $column_name, $user_id) {
+		global $current_site;
+		$ruc_users = get_user_meta($user_id,'ruc_user_'.$current_site->blog_id.'_role',true);
+		return $user_id.' '.$ruc_users;//$column_name;
+	}
+/////////////
+
+	
+	static function network_menu() {
+	//	add_options_page('RUC user','RUC user','manage_options','ruc-users','ruc_users_options');
+//		add_submenu_page('users.php','RUC user sites','RUC user sites','manage_sites','ruc-sites', array('RUC_User', 'sites_page'));
+		add_submenu_page('sites.php','RUC site users','RUC site users','manage_sites','ruc-sites', array('RUC_User', 'sites_page'));
+		////	add_filter( 'wpmu_users_columns', 'get_user_id' );
+		add_filter( 'wpmu_blogs_columns', array('RUC_User', 'sites_add_column_headers') );
+		add_action( 'manage_sites_custom_column', array('RUC_User', 'sites_add_column') , 10, 2 );
+	//	add_action( 'manage_users_custom_column', 'add_users_columns' , 10, 3 );
+	//	add_action( 'manage_blogs_custom_column', 'add_columns' , 10, 2 ); //wo iss das???
+		$page = remove_submenu_page( 'users.php', 'user-new.php' );
+	}
+
+	static function sites_page() { 
+		if (!current_user_can('manage_sites'))  {
+			wp_die( __('You do not have sufficient permissions to access this page.') );
+		}
+		$savebtn = __('Save Changes');
+		$r = '';
+		$url = '\wp\wp-content\mu-plugins\ruc_users.php?addsites=sodos,test1';
+		echo <<<BEGIN
+<div class="wrap">
+<h2>RUC user sites</h2>
+<p>$r</p>
+<form method="post" action="../options.php">
+	
+BEGIN;
+
+		settings_fields( 'sites_page' );
+		do_settings_fields( 'sites_page','default');
+		echo <<<END
+<p class="submit">
+<input type="submit" class="button-primary" value="$savebtn" />
+</p>
+</form>
+</div>
+	
+END;
+	}
+	
+
+	static function sites_setting() {
+		if (!current_user_can('manage_sites'))  {
+			wp_die( __('You do not have sufficient permissions to access this page.') );
+		}
+		$ruc_site_users = get_option('ruc_site_users');
+		$role = isset($ruc_site_users['role']) ? $ruc_site_users['role'] : 'subscriber';
+//		echo '<pre>'.$ruc_site_users['dbg'].'</pre>';
+		echo '<input type="text" name="ruc_site_users[site]" value="" />';
+		echo '<p><select name="ruc_site_users[role]">'; 
+		wp_dropdown_roles($role);
+		echo '</select></p>';
+		echo '<p><textarea name="ruc_site_users[userlist]" id="__1" class="code" rows="16" cols="80">'.@$ruc_site_users['userlist'].'</textarea></p>';
+	}
+	
+	static function sites_add_column_headers( $columns ) {
+//		$columns['ruc_site_id'] = __('ID');
+		$columns['ruc_user_site'] = 'RUC User Site';
+		return $columns;
+	}
+
+	static function sites_add_column($column_name, $blog_id) {
+		switch ($column_name){
+			case 'ruc_user_site':
+				$sitemeta = get_metadata('site',$blog_id,'ruc_user_site', true);
+				if($sitemeta) echo 'yes';
+				else echo 'no';
+				break;
+			case 'ruc_site_id':
+				echo $blog_id;
+				break;
+		}		
+	}
+	
+/////////
+	static function add_user_data($user_id){
+		if (!current_user_can('manage_sites'))  {
+			wp_die( __('You do not have sufficient permissions to access this page.') );
+		}
+		$userdata = get_userdata($user_id);
+		if(!$userdata) return false;
+/*		
+		$ds = ldap_connect("ldap.ruc.dk ldap2.ruc.dk ldap3.ruc.dk");
+	
+	 	if(!$ds) return false; 
+
+		ldap_bind($ds);
+
+		$filter = "(uid=$userdata->user_login)";
+		$sr = @ldap_search($ds, "ou=users,dc=ruc,dc=dk", $filter , array('givenname', 'sn'));
+		$info = @ldap_get_entries($ds, $sr);
+*/
+		$ds = ldap_connect("ldaps://ldap.ruc.dk");
+		if(!$ds) { 
+                       error_log('LDAP ERROR connect: '.ldap_error($ds)."\n",3,'/var/log/php/ldap.txt');
+                       return false;
+                }
+ 
+		ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
+		$ldap_user = 'uid=journalistik,ou=sysusr,dc=ruc,dc=dk';
+		$ldap_pw = 'ARVK6v88fdG7aKmGz9WSjOIk8';
+		$br = ldap_bind($ds, $ldap_user, $ldap_pw);
+		if(!$br) {
+			error_log('LDAP ERROR bind: '.ldap_error($ds)."\n",3,'/var/log/php/ldap.txt');
+			return false;
+		}
+		$filter = "(uid=$userdata->user_login)";
+		$sr = @ldap_search($ds, "ou=users,dc=ruc,dc=dk", $filter , array('givenname', 'sn'));
+		//		error_log('LDAP SEARCH'.ldap_error($ds)."\n",3,'/var/log/php/ldap.txt');
+		$info = @ldap_get_entries($ds, $sr);
+		//		error_log('LDAP INFO'.print_r($info,TRUE)."\n",3,'/var/log/php/ldap.txt');
+
+		@ldap_close($ds);
+		if(@$info['count'] != 1) return false;
+		
+		$gn = @$info[0]['givenname'][0];
+		$sn = @$info[0]['sn'][0];
+//		return '<pre>'.print_r($info,true).'</pre>';
+		update_user_meta($user_id, 'first_name',$gn);
+		update_user_meta($user_id, 'last_name',$sn);
+		return $gn.' '.$sn;
+	}
+}
+
+if ( is_admin() ){ // admin actions
+	add_action('admin_menu', array('RUC_User', 'users_menu'));
+	add_action('network_admin_menu', array('RUC_User', 'network_menu'));
+	add_action('admin_init', array('RUC_User', 'admin_init'));
+}

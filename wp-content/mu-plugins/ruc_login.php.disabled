@@ -1,0 +1,362 @@
+<?php
+/*
+Plugin Name: RUC auth
+Description: Plugin to handle authentication and authorisation. Enables RUC SSO.
+Version: 0.8
+ */
+ // die if called directly
+
+return;
+
+ defined('ABSPATH') or die(' - ');
+ 
+ 
+if(!include_once 'CAS.php') wp_die('SSO failure');
+
+try {
+	phpCAS::client(CAS_VERSION_2_0,'signon.ruc.dk',443,'',get_option('siteurl')); //siteurl added for php-cas 1.3.6-1+deb10u1
+//	phpCAS::client(CAS_VERSION_2_0,'signon.ruc.dk',443,'');
+} catch (Exception $e){
+	echo $e;
+	exit('--');
+}
+
+// phpCAS::setNoCasServerValidation();
+$capem = dirname(__FILE__).'/ruc_wildcard.pem';
+phpCAS::setCasServerCACert($capem);
+// phpCAS::handleLogoutRequests();
+
+/**
+*	Check wether current WP-user matches CAS-user. 
+*	Logout WP if not.
+*/
+function ruc_check_SSO_login(){
+//		error_log('SSO check '.$_SERVER['REQUEST_URI']);
+	if(is_user_logged_in()){
+		$current_user = wp_get_current_user();
+		$login = $current_user->user_login;
+//		error_log('SSO check - WP user: '.$login);
+		if(get_option('ruc_auth_use_default_account',false) && $login === '_ruc_user_') return;
+		if(!phpCAS::isAuthenticated() || (($caslogin = strtolower(phpCAS::getUser())) !== $login)) {
+			error_log("Logged in to WP as $login but not to SSO or different SSO user $caslogin.");
+			wp_logout();
+			$redirect_to = $_SERVER['REQUEST_URI'];
+			wp_safe_redirect($redirect_to);
+			exit();
+		}
+		return;
+	}
+}
+add_action('init', 'ruc_check_SSO_login');
+
+/**
+* takes over login.php except for logout
+*/
+function ruc_sso_login_init(){
+	if(isset($_REQUEST['loggedout'])) {
+		wp_safe_redirect( get_option('siteurl'));
+		exit();		
+	}
+	
+	$action = isset($_REQUEST['action']) ? $_REQUEST['action'] : 'login';
+	switch($action){
+		case 'login':
+			define('RUC_CAS_ONLY','j76hsa88');
+			$creds = array();
+			$creds['user_login'] = RUC_CAS_ONLY;
+			$creds['user_password'] = '';
+			$creds['remember'] = false;
+			$secure_cookie = is_ssl() ? true : false;
+			$user = wp_signon( $creds, $secure_cookie );
+			if ( is_wp_error($user) ) {
+				$fallbackurl = get_option('ruc_auth_fallback_url');
+				$link = "<a href='$fallbackurl'>$fallbackurl</a>";
+				error_log("$user->user_login has no role assigned for $siteurl<br />$link");
+				wp_die("No access - try $link");
+				exit();
+			}
+			break;
+		case 'logout':
+			return; // logout action in login.php
+			break;
+		default:
+			// what about 'postpass'?
+			// ignore rest ('lostpassword', 'retrievepassword', 'resetpass', 'rp' and 'register' so far)
+			wp_die("Not allowed");
+			exit();
+	}
+//	$redirect_to = isset( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : admin_url();	
+	$redirect_to = isset($_REQUEST['redirect_to']) ? $_REQUEST['redirect_to'] : get_option('siteurl');
+	wp_safe_redirect($redirect_to);
+	exit();
+}
+add_action( 'login_init', 'ruc_sso_login_init' );
+
+/**
+* Override pluggable function
+*/
+function wp_authenticate($username, $password) {
+  return null;
+	$logintime =  date('Y-m-d H:i:s');
+	if(defined('RUC_CAS_ONLY') && $username !== RUC_CAS_ONLY) {
+		error_log('SSO wp_authenticate - Username was changed by other plugin?!?');
+//			do_action('wp_login_failed', "xxx"); // something like this?!?
+		return new WP_Error('login_error','Bad username');
+	}
+	try{
+		phpCAS::forceAuthentication();
+	} catch (CAS_AuthenticationException $ce){
+		error_log("++++++++++++++ CAS authentication failed: \n".$ce->getMessage());
+		wp_die('CAS failed');
+	}
+
+	$casid =strtolower( phpCAS::getUser());
+//		error_log('SSO wp_authenticate casid: '.$casid);
+	global $allowed_users;
+	if( ! empty($allowed_users) && ! in_array( $casid, $allowed_users)) {
+		header('Refresh: 3;url='.get_option('siteurl'));
+		wp_die('<h1>Serveren er ved at blive opdateret.</h1><h2>Login er ikke muligt</h2><p>frankw@ruc.dk');
+	}
+	if($uid = username_exists($casid)){
+//			error_log('SSO wp_authenticate user exists: '.$casid);
+		$user = new WP_User($uid);
+		update_user_meta($user->ID, 'ruc_sso_login',$logintime);
+		return $user;
+	} else if(get_option('ruc_auth_use_default_account',false) && $uid = username_exists('_ruc_user_')){
+		return new WP_User($uid);
+	}
+	error_log('SSO wp_authenticate - user does not exist');
+	return new WP_Error('login_error',"User $username does not exist");
+}
+
+
+function ruc_requirelogin(){
+	global $pagenow;
+	if($pagenow === 'wp-login.php') return; //wp_die('require...');
+//	if($pagenow === 'xmlrpc.php') die('xmlrpc not allowed'); // xmlrpc.php does loop when logged in and login required
+	$redirect_to = urlencode( $_SERVER['REQUEST_URI']);
+	$siteurl = get_option('siteurl');
+	if(!is_user_logged_in()) {
+		wp_safe_redirect("$siteurl/wp-login.php?requirelogin=true&redirect_to=$redirect_to");
+		exit();
+	}
+	$user = wp_get_current_user();
+	if(current_user_can('manage_sites')) return;
+	if (get_option('ruc_auth_require_role', true) && empty($user->roles)){
+		$siteurl = get_option('siteurl');
+		$fallbackurl = get_option('ruc_auth_fallback_url');
+		$link = "<a href='$fallbackurl'>$fallbackurl</a>";
+		error_log("$user->user_login has no role assigned for $siteurl<br />$link");
+		wp_die("$user->user_login has no role assigned for $siteurl<br />$link");
+	}
+}
+
+
+if(get_option('ruc_auth_require_login',true)) { 
+	add_action('init', 'ruc_requirelogin');
+}
+
+
+/*********************************************************************************************************************************/
+
+function register_ruc_auth_settings(){
+	global $current_site;
+	add_settings_section('ruc_auth_section',
+		'RUC auth section',
+		'eg_setting_section_callback_function',
+		'ruc_auth_options');
+	add_settings_field('ruc_auth_use_sso',
+		'RUC SSO',
+		'setting_ruc_auth_use_sso',
+		'ruc_auth_options',
+		'ruc_auth_section'
+		);
+	add_settings_field('ruc_auth_require_login',
+		'Require login',
+		'setting_ruc_auth_require_login',
+		'ruc_auth_options',
+		'ruc_auth_section'
+		);
+	add_settings_field('ruc_auth_fallback_url',
+		'Fallback URL',
+		'setting_ruc_auth_fallback_url',
+		'ruc_auth_options',
+		'ruc_auth_section'
+		);
+	register_setting('ruc_auth_options', 'ruc_auth_use_sso', 'validate_use_sso');
+	register_setting('ruc_auth_options', 'ruc_auth_require_login');
+	register_setting('ruc_auth_options', 'ruc_auth_require_role');
+	register_setting('ruc_auth_options', 'ruc_auth_use_default_account', 'validate_default_user');
+	register_setting('ruc_auth_options', 'ruc_auth_fallback_url', 'validate_fallback_url');	
+
+	if(!get_option('ruc_auth_fallback_url')){
+		add_option('ruc_auth_fallback_url',validate_fallback_url());
+	}
+
+	if(is_multisite()){
+		update_metadata('site',$current_site->id,'ruc_auth_use_sso', true);
+	}
+
+}
+
+
+function eg_setting_section_callback_function() {
+	echo '<p>Intro text for our settings section</p>';
+}
+
+function setting_ruc_auth_use_sso() {
+	global $current_site;
+	if(is_multisite()){
+		$usesso = get_metadata('site',$current_site->id,'ruc_auth_use_sso', true);
+		if($usesso) echo 'Use RUC SSO for login<br />';
+		else echo 'Do not use RUC SSO for login<br />';
+	} else {
+		echo '<input name="ruc_auth_use_sso" id="__1" type="checkbox" value="1" class="code" ' . checked( 1, get_option('ruc_auth_use_sso',true), false ) . ' /> Use RUC SSO for login<br />';
+	}
+}
+
+function setting_ruc_auth_require_login() {
+	if (!current_user_can('manage_options'))  {
+		wp_die( __('You do not have sufficient permissions to access this page.x') );
+	}
+	$require_login = get_option('ruc_auth_require_login');
+	echo '<input name="ruc_auth_require_login" id="__2a" type="checkbox" value="1" class="code" ' . checked( 1, $require_login, false ) . ' /> Require login for '.get_option('siteurl').'<br />';
+	$require_role = get_option('ruc_auth_require_role','__undefined__');
+	if($require_login && $require_role === '__undefined__') {
+		update_option('ruc_auth_require_role', true);
+		$require_role = get_option('ruc_auth_require_role');
+	}
+	echo '<input name="ruc_auth_require_role" id="__2b" type="checkbox" value="1" class="code" ' . checked( 1, $require_role, false ) . ' /> Select to require role<br />';
+	$createmsg = username_exists('_ruc_user_') ? '' : ' will be created';
+	echo '<input name="ruc_auth_use_default_account" id="__3" type="checkbox" value="1" class="code" ' . checked( 1, get_option('ruc_auth_use_default_account',false), false ) . " /> Use default account (_ruc_user_$createmsg) for unregistered RUC account.<br />";
+}
+ 
+function setting_ruc_auth_fallback_url() {
+	echo '<input name="ruc_auth_fallback_url" id="__4" type="text" class="code" size="40" value="' .  get_option('ruc_auth_fallback_url') . '" /> URL to redirect to if login fails<br />';
+}
+
+function validate_use_sso($value = true){
+	global $current_site;
+	if (!current_user_can('manage_options'))  {
+		wp_die( __('You do not have sufficient permissions to access this page.') );
+	}
+	if(is_multisite()){
+		update_metadata('site',$current_site->id,'ruc_auth_use_sso', true);
+	}
+	return $value;
+}
+
+function validate_default_user($value){
+	global $wp_roles;
+	if (!current_user_can('manage_options'))  {
+		wp_die( __('You do not have sufficient permissions to access this page.') );
+	}
+	
+	$rolenames = $wp_roles->get_names();
+	if(!isset($rolenames['_ruc_user_'])) add_role('_ruc_user_','Unregistered RUC user',array());
+	$user_id = username_exists('_ruc_user_');
+	if($value && !$user_id ) {
+		$random_password = wp_generate_password( 12, false );
+		$user_id = wp_create_user( '_ruc_user_', $random_password, '-' );
+		$user = new WP_User($user_id);
+		$user->remove_role('subscriber');
+//		$user->add_role('_ruc_user_');
+		return $value;	
+	}
+	$user = new WP_User($user_id);
+//	$user->add_role('_ruc_user_');	
+	return $value;
+}
+
+function validate_fallback_url($fallbackurl = null){
+	if (!current_user_can('manage_options'))  {
+		wp_die( __('You do not have sufficient permissions to access this page.') );
+	}
+	if(!$fallbackurl) $fallbackurl = (@$_SERVER["HTTPS"]=="on") ? 'https://'.DOMAIN_CURRENT_SITE : 'http://'.DOMAIN_CURRENT_SITE;
+	if(get_option('siteurl') == $fallbackurl) return 'http://www.ruc.dkX';
+	else {//return $fallbackurl;
+		if(preg_match('/http(s)?:\/\/\w[\w\-\.\/]{1,50}+$/', $fallbackurl)) {
+			return $fallbackurl;
+		} 
+		return 'http://www.ruc.dkT';
+	}  	
+}
+
+if ( is_admin() ){ // admin actions
+	add_action('admin_menu', 'ruc_auth_menu');
+	add_action('admin_init', 'register_ruc_auth_settings');
+}
+
+//delete_option('ruc_auth');
+//delete_option('ruc_auth_use_sso');
+//delete_option('ruc_auth_require_login');
+//delete_option('ruc_auth_fallback_url');
+
+
+
+function ruc_auth_menu() {
+	add_options_page('RUC auth options', 'RUC auth', 'manage_options', 'ruc-auth-options', 'ruc_auth_options');
+}
+
+function ruc_auth_options() {
+	if (!current_user_can('manage_options'))  {
+		wp_die( __('You do not have sufficient permissions to access this page.') );
+	}
+	
+	$usesso = get_option('ruc_auth_use_sso');
+	$requirelogin = get_option('ruc_auth_require_login');
+	$fallbackurl = get_option('ruc_auth_fallback_url');
+	$savebtn = __('Save Changes');
+	echo <<<BEGIN
+<div class="wrap">
+<h2>RUC auth options</h2>
+<form method="post" action="options.php">
+BEGIN;
+
+	settings_fields( 'ruc_auth_options' );
+	do_settings_sections( 'ruc_auth_options');
+//	do_settings_fields( 'ruc_auth_options', 'default');
+/*
+<table class="form-table">
+	<tr valign="top">
+	<th scope="row">Use RUC SSO</th>
+	<td><input type="text" name="ruc_auth_use_sso" value="$usesso" /></td>
+	</tr>	 
+	<tr valign="top">
+	<th scope="row">Require login</th>
+	<td><input type="text" name="ruc_auth_require_login" value="$requirelogin" /></td>
+	</tr>
+	<tr valign="top">
+	<th scope="row">Fallback url</th>
+	<td><input type="text" name="ruc_auth_fallback_url" value="$fallbackurl" /></td>
+	</tr>
+</table>
+*/
+	echo <<<END
+<p class="submit">
+<input type="submit" class="button-primary" value="$savebtn" />
+</p>
+</form>
+</div>
+
+END;
+}
+
+
+function remove_ruc_user_admin_bar(){
+	if(is_user_logged_in()) {
+		if(current_user_can('manage_sites')) return;
+		$current_user = wp_get_current_user();
+	    if($current_user->user_login == '_ruc_user_' || empty($current_user->roles)) add_filter('show_admin_bar', '__return_false');
+	}
+}
+add_action('init', 'remove_ruc_user_admin_bar');
+function disable_ruc_user_profile(){
+	if(is_user_logged_in()) {
+		global $user_login;
+		get_currentuserinfo();
+		if($user_login == '_ruc_user_') wp_die('You cannot edit your user profile.');
+	}
+}
+add_action( 'load-profile.php', 'disable_ruc_user_profile' );
+add_action( 'load-user-edit.php', 'disable_ruc_user_profile' );

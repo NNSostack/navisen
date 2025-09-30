@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+This file is used by the publish/package process of your Web project. You can customize the behavior of this process
+by editing this MSBuild file. In order to learn more about this please visit https://go.microsoft.com/fwlink/?LinkID=208121. 
+-->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <TimeStampOfAssociatedLegacyPublishXmlFile />
+    <EncryptedPassword>AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAdoIXT+Vbn0mqCM2Opp3DywAAAAACAAAAAAAQZgAAAAEAACAAAAAB2925qdRcJrYYb7oARatNNKRo/8mpwUjRYhXSFlg7TAAAAAAOgAAAAAIAACAAAAAr+8HqLJVxsHO+oYhDUJA0fKcUEXj4Lnjp1C/IBiQCWSAAAAD/VK8HCsD+cOgVMTOwcW86Lqe72YM08xbcn4hsMgnuEEAAAAARO8M/VCcD8xb8NfLqZWtnKBDXDDsyndPAFmSjV6GHzqJ6kkTg9oNh07WCkUT5CYaDXSt7AuWSiaWptUFgbrha</EncryptedPassword>
+    <_PublishTargetUrl>ftp://linux235.unoeuro.com/navisen/</_PublishTargetUrl>
+  </PropertyGroup>
+  <ItemGroup>
+    <File Include="wp-content/themes/advanced-newspaper/templates/home-withslider.php">
+      <publishTime>01/01/0001 00:00:00</publishTime>
+    </File>
+    <File Include="wp-content/themes/navisen/functions.php">
+      <publishTime>09/30/2025 16:43:37</publishTime>
+    </File>
+    <File Include="wp-content/themes/navisen/templates/home-withslider.php">
+      <publishTime>01/01/0001 00:00:00</publishTime>
+    </File>
+  </ItemGroup>
+</Project>

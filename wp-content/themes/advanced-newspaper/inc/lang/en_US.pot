@@ -1,0 +1,1882 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: gabfire\n"
+"POT-Creation-Date: 2015-06-12 15:16+0200\n"
+"PO-Revision-Date: 2015-06-12 15:12+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.1\n"
+"X-Poedit-Basepath: ..\\..\\\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_x\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: 404.php:11
+msgid "Page not found!"
+msgstr ""
+
+#: 404.php:19
+msgid "Sorry the page you were looking is not here."
+msgstr ""
+
+#: 404.php:23
+msgid "To search in site, type a keyword and hit enter"
+msgstr ""
+
+#: 404.php:24 searchform.php:13
+msgid "Type keyword and hit enter"
+msgstr ""
+
+#: archive-2colslider.php:113
+msgid "CONTINUE READING"
+msgstr ""
+
+#: attachment.php:34 functions.php:824
+msgid "Send by email"
+msgstr ""
+
+#: attachment.php:35 functions.php:825
+msgid "I recommend this page:"
+msgstr ""
+
+#: attachment.php:36 functions.php:826
+msgid "You can read it on:"
+msgstr ""
+
+#: attachment.php:44
+msgid "Share to Facebook"
+msgstr ""
+
+#: attachment.php:44 header.php:88
+msgid "Friend on Facebook"
+msgstr ""
+
+#: attachment.php:48 functions.php:838
+msgid "Share on Twitter"
+msgstr ""
+
+#: attachment.php:48 functions.php:838
+msgid "Follow on Facebook"
+msgstr ""
+
+#: attachment.php:52 functions.php:842
+msgid "Share on Google+"
+msgstr ""
+
+#: attachment.php:52 header.php:100
+msgid "Add to Google+ Circle"
+msgstr ""
+
+#: attachment.php:56 functions.php:846
+msgid "Share on LinkedIn"
+msgstr ""
+
+#: attachment.php:56 functions.php:846 header.php:106
+msgid "Connect on Linked in"
+msgstr ""
+
+#: attachment.php:60 attachment.php:64 functions.php:850
+msgid "Send by Email"
+msgstr ""
+
+#: attachment.php:60 attachment.php:64 functions.php:850 header.php:136
+msgid "Subscribe by Email"
+msgstr ""
+
+#: attachment.php:76
+msgid "&laquo; Previous Image"
+msgstr ""
+
+#: attachment.php:76
+msgid "Back to Post"
+msgstr ""
+
+#: attachment.php:76
+msgid "Next Image &raquo;"
+msgstr ""
+
+#: comments.php:14
+msgid ""
+"This post is password protected. Enter the password to view any comments."
+msgstr ""
+
+#: comments.php:38 comments.php:57
+msgid "&larr; Older Comments"
+msgstr ""
+
+#: comments.php:39 comments.php:58
+msgid "Newer Comments &rarr;"
+msgstr ""
+
+#: comments.php:75
+msgid "You must be logged in to post a comment"
+msgstr ""
+
+#: comments.php:77
+msgid "Login"
+msgstr ""
+
+#: comments.php:91
+msgid "Leave a Reply"
+msgstr ""
+
+#: comments.php:92
+#, php-format
+msgid "Leave a Reply to %s"
+msgstr ""
+
+#: comments.php:93
+msgid "Cancel Reply"
+msgstr ""
+
+#: comments.php:94
+msgid "Post Comment"
+msgstr ""
+
+#: comments.php:96
+msgid "Add your comment"
+msgstr ""
+
+#: comments.php:97
+#, php-format
+msgid "You must be <a href=\"%s\">logged in</a> to post a comment."
+msgstr ""
+
+#: comments.php:98
+#, php-format
+msgid ""
+"Logged in as <a href=\"%1$s\">%2$s</a>. <a href=\"%3$s\" title=\"Log out of "
+"this account\">Log out?</a>"
+msgstr ""
+
+#: comments.php:99
+msgid "Your email address will not be published."
+msgstr ""
+
+#: comments.php:103
+msgid "Name"
+msgstr ""
+
+#: comments.php:105
+msgid "Email"
+msgstr ""
+
+#: comments.php:107
+msgid "Website"
+msgstr ""
+
+#: footer.php:58
+msgid "Powered by WordPress"
+msgstr ""
+
+#: framework/admin/includes/class-options-framework-admin.php:91
+#: framework/admin/includes/class-options-framework-admin.php:92
+msgid "Theme Options"
+msgstr ""
+
+#: framework/admin/includes/class-options-framework-admin.php:204
+msgid "Click OK to reset. Any theme settings will be lost!"
+msgstr ""
+
+#: framework/admin/includes/class-options-framework-admin.php:235
+msgid "Default options restored."
+msgstr ""
+
+#: framework/admin/includes/class-options-framework-admin.php:289
+msgid "Options saved."
+msgstr ""
+
+#: framework/admin/includes/class-options-media-uploader.php:62
+msgid "No file chosen"
+msgstr ""
+
+#: framework/admin/includes/class-options-media-uploader.php:65
+#: framework/admin/includes/class-options-media-uploader.php:118
+msgid "Upload"
+msgstr ""
+
+#: framework/admin/includes/class-options-media-uploader.php:67
+#: framework/admin/includes/class-options-media-uploader.php:119
+msgid "Remove"
+msgstr ""
+
+#: framework/admin/includes/class-options-media-uploader.php:70
+msgid "Upgrade your version of WordPress for full media support."
+msgstr ""
+
+#: framework/admin/includes/class-options-media-uploader.php:94
+msgid "View File"
+msgstr ""
+
+#: framework/admin/includes/class-options-sanitization.php:316
+msgid "No Repeat"
+msgstr ""
+
+#: framework/admin/includes/class-options-sanitization.php:317
+msgid "Repeat Horizontally"
+msgstr ""
+
+#: framework/admin/includes/class-options-sanitization.php:318
+msgid "Repeat Vertically"
+msgstr ""
+
+#: framework/admin/includes/class-options-sanitization.php:319
+msgid "Repeat All"
+msgstr ""
+
+#: framework/admin/includes/class-options-sanitization.php:331
+msgid "Top Left"
+msgstr ""
+
+#: framework/admin/includes/class-options-sanitization.php:332
+msgid "Top Center"
+msgstr ""
+
+#: framework/admin/includes/class-options-sanitization.php:333
+msgid "Top Right"
+msgstr ""
+
+#: framework/admin/includes/class-options-sanitization.php:334
+msgid "Middle Left"
+msgstr ""
+
+#: framework/admin/includes/class-options-sanitization.php:335
+msgid "Middle Center"
+msgstr ""
+
+#: framework/admin/includes/class-options-sanitization.php:336
+msgid "Middle Right"
+msgstr ""
+
+#: framework/admin/includes/class-options-sanitization.php:337
+msgid "Bottom Left"
+msgstr ""
+
+#: framework/admin/includes/class-options-sanitization.php:338
+msgid "Bottom Center"
+msgstr ""
+
+#: framework/admin/includes/class-options-sanitization.php:339
+msgid "Bottom Right"
+msgstr ""
+
+#: framework/admin/includes/class-options-sanitization.php:351
+msgid "Scroll Normally"
+msgstr ""
+
+#: framework/admin/includes/class-options-sanitization.php:352
+msgid "Fixed in Place"
+msgstr ""
+
+#: framework/admin/includes/class-options-sanitization.php:424
+msgid "Normal"
+msgstr ""
+
+#: framework/admin/includes/class-options-sanitization.php:425
+msgid "Italic"
+msgstr ""
+
+#: framework/admin/includes/class-options-sanitization.php:426
+msgid "Bold"
+msgstr ""
+
+#: framework/admin/includes/class-options-sanitization.php:427
+msgid "Bold Italic"
+msgstr ""
+
+#: framework/functions/breadcrumb.php:7 woocommerce/gabfire-woocommerce.php:35
+msgid "Home"
+msgstr ""
+
+#: framework/functions/breadcrumb.php:23 framework/functions/breadcrumb.php:35
+#: framework/functions/breadcrumb.php:42 framework/functions/breadcrumb.php:48
+msgid "Archives"
+msgstr ""
+
+#: framework/functions/breadcrumb.php:75
+msgid "Gallery"
+msgstr ""
+
+#: framework/functions/breadcrumb.php:102
+msgid "Posts tagged with"
+msgstr ""
+
+#: framework/functions/breadcrumb.php:109
+#, php-format
+msgid "Entries posted by %1$s"
+msgstr ""
+
+#: framework/functions/breadcrumb.php:112
+msgid "404! Page not found"
+msgstr ""
+
+#: framework/functions/breadcrumb.php:116
+msgid " (Page"
+msgstr ""
+
+#: framework/functions/hook-functions.php:15
+msgid "<strong>Pages:</strong>"
+msgstr ""
+
+#: framework/functions/hook-functions.php:20
+msgid "Next page"
+msgstr ""
+
+#: framework/functions/hook-functions.php:21
+msgid "Previous page"
+msgstr ""
+
+#: framework/functions/hook-functions.php:41
+msgid "SOURCE"
+msgstr ""
+
+#: framework/functions/misc-functions.php:45
+msgid "No categories"
+msgstr ""
+
+#: framework/functions/misc-functions.php:82
+#: framework/functions/misc-functions.php:90 functions.php:285
+#, php-format
+msgid "%s "
+msgstr ""
+
+#: framework/functions/misc-functions.php:87
+#, php-format
+msgid "%s Archive"
+msgstr ""
+
+#: framework/functions/misc-functions.php:93
+#: framework/functions/misc-functions.php:96
+#: framework/functions/misc-functions.php:99
+#, php-format
+msgid "Archive for %s"
+msgstr ""
+
+#: framework/functions/misc-functions.php:102
+#, php-format
+msgid "Search Results for %s"
+msgstr ""
+
+#: framework/functions/misc-functions.php:105
+msgid "Author Archive"
+msgstr ""
+
+#: framework/functions/misc-functions.php:108
+msgid "Tag Archive"
+msgstr ""
+
+#: framework/functions/misc-functions.php:116
+#, php-format
+msgid "Page %s"
+msgstr ""
+
+#: framework/functions/misc-functions.php:185
+msgid "No Comment"
+msgstr ""
+
+#: framework/functions/misc-functions.php:185
+msgid "1 Comment"
+msgstr ""
+
+#: framework/functions/misc-functions.php:185
+msgid "% Comments"
+msgstr ""
+
+#: framework/functions/optionspanel-mods.php:19
+msgid ""
+"Are you looking for a new theme to change the layout of your site? <a target="
+"\"_blank\" href=\"http://www.gabfirethemes.com/wordpress-themes/\">Click "
+"here</a> to see all our newest themes"
+msgstr ""
+
+#: framework/functions/optionspanel-mods.php:32
+msgid "Support"
+msgstr ""
+
+#: framework/functions/optionspanel-mods.php:34
+msgid "Gabfire Codex"
+msgstr ""
+
+#: framework/functions/optionspanel-mods.php:35
+msgid "Support Forums"
+msgstr ""
+
+#: framework/functions/optionspanel-mods.php:36
+msgid "FAQ"
+msgstr ""
+
+#: framework/functions/optionspanel-mods.php:37
+msgid "Latest News"
+msgstr ""
+
+#: framework/functions/optionspanel-mods.php:44
+msgid "Social"
+msgstr ""
+
+#: framework/functions/optionspanel-mods.php:46
+msgid "Subscribe to Newsletters"
+msgstr ""
+
+#: framework/functions/optionspanel-mods.php:47
+msgid "Connect on Facebook"
+msgstr ""
+
+#: framework/functions/optionspanel-mods.php:48 header.php:94
+msgid "Follow on Twitter"
+msgstr ""
+
+#: framework/functions/optionspanel-mods.php:49 header.php:142
+msgid "Subscribe to RSS"
+msgstr ""
+
+#: framework/functions/shortcodes.php:35
+msgid "No related posts found"
+msgstr ""
+
+#: functions.php:94
+msgid "Masthead Navigation"
+msgstr ""
+
+#: functions.php:95
+msgid "Primary Navigation"
+msgstr ""
+
+#: functions.php:96 options.php:1123
+msgid "Secondary Navigation"
+msgstr ""
+
+#: functions.php:97
+msgid "Shop Navigation"
+msgstr ""
+
+#: functions.php:98
+msgid "Footer Navigation"
+msgstr ""
+
+#: functions.php:288 functions.php:308
+msgid "Edit"
+msgstr ""
+
+#: functions.php:293
+msgid "Your comment is awaiting moderation."
+msgstr ""
+
+#: functions.php:308
+msgid "Pingback:"
+msgstr ""
+
+#: functions.php:333
+msgid "Home Bottom Sidebar"
+msgstr ""
+
+#: functions.php:335
+msgid "Homepage - below sidebar ad"
+msgstr ""
+
+#: functions.php:338
+msgid "Innerpage Sidebar"
+msgstr ""
+
+#: functions.php:340
+msgid "Width: 336px"
+msgstr ""
+
+#: functions.php:343
+msgid "Shop Sidebar"
+msgstr ""
+
+#: functions.php:345
+msgid "Width: 244px - This sidebar will show on WooCommerce pages only."
+msgstr ""
+
+#: functions.php:348
+msgid "Header 728x90"
+msgstr ""
+
+#: functions.php:350
+msgid ""
+"Width:728px - Ad a 728x90 banner in this zone  if header type is set as Logo "
+"& Banner"
+msgstr ""
+
+#: functions.php:353
+msgid "Before Header -728px"
+msgstr ""
+
+#: functions.php:355
+msgid ""
+"Width:728px - Ad a 728x90 banner in this zone to display it before header at "
+"very top of site."
+msgstr ""
+
+#: functions.php:358
+msgid "Footer 1st Row, Left"
+msgstr ""
+
+#: functions.php:360 functions.php:365 functions.php:370
+msgid "Width: 314px"
+msgstr ""
+
+#: functions.php:363
+msgid "Footer 1st Row, Mid"
+msgstr ""
+
+#: functions.php:368
+msgid "Footer 1st Row, Right"
+msgstr ""
+
+#: functions.php:373
+msgid "Primary Left Top"
+msgstr ""
+
+#: functions.php:377
+msgid "Primary Left Bottom"
+msgstr ""
+
+#: functions.php:381
+msgid "Primary Mid Top"
+msgstr ""
+
+#: functions.php:385
+msgid "Primary Mid Bottom"
+msgstr ""
+
+#: functions.php:389
+msgid "Primary Right 160px"
+msgstr ""
+
+#: functions.php:391
+msgid "Width: 160px"
+msgstr ""
+
+#: functions.php:394
+msgid "Secondary Left"
+msgstr ""
+
+#: functions.php:396
+msgid "Homepage With Slider - Secondary Row Left Column"
+msgstr ""
+
+#: functions.php:399
+msgid "Secondary Mid Top"
+msgstr ""
+
+#: functions.php:401
+msgid "Homepage With Slider - Secondary Row Mid Column - Above Entries"
+msgstr ""
+
+#: functions.php:404
+msgid "Secondary Mid Bottom"
+msgstr ""
+
+#: functions.php:406
+msgid "Homepage With Slider - Secondary Row Mid Column - Below Entries"
+msgstr ""
+
+#: functions.php:409
+msgid "Secondary Right Top - 336px"
+msgstr ""
+
+#: functions.php:411
+msgid ""
+"Width: 336px - Homepage With Slider - Secondary Row Right Column - Above "
+"Entries"
+msgstr ""
+
+#: functions.php:414
+msgid "Secondary Right Bottom - 336px"
+msgstr ""
+
+#: functions.php:416
+msgid ""
+"Width: 336px - Homepage With Slider - Secondary Row Right Column - Below "
+"Entries"
+msgstr ""
+
+#: functions.php:419
+msgid "Mag. Cat. - Secondary Left"
+msgstr ""
+
+#: functions.php:421
+msgid "Magazine Category Template - Secondary Row Left Column"
+msgstr ""
+
+#: functions.php:424
+msgid "Mag. Cat. - Secondary Mid Top"
+msgstr ""
+
+#: functions.php:426
+msgid "Magazine Category Template - Secondary Row Mid Column - Above Entries"
+msgstr ""
+
+#: functions.php:429
+msgid "Mag. Cat. - Secondary Mid Bottom"
+msgstr ""
+
+#: functions.php:431
+msgid "Magazine Category Template - Secondary Row Mid Column - Below Entries"
+msgstr ""
+
+#: functions.php:434
+msgid "Mag. Cat. - Secondary Right Top - 336px"
+msgstr ""
+
+#: functions.php:436
+msgid "Width: 336px - Mag. Cat. - Secondary Row Right Column - Above Entries"
+msgstr ""
+
+#: functions.php:439
+msgid "Mag. Cat. - Secondary Right Bottom - 336px"
+msgstr ""
+
+#: functions.php:441
+msgid "Width: 336px - Mag. Cat. - Secondary Row Right Column - Below Entries"
+msgstr ""
+
+#: functions.php:444
+msgid "Homepage Bottom 468px"
+msgstr ""
+
+#: functions.php:446
+msgid "Width: 468px"
+msgstr ""
+
+#: functions.php:449
+msgid "Before Subnews 728x90"
+msgstr ""
+
+#: functions.php:451 functions.php:456
+msgid ""
+"Width: 728x90px - This zone shows on magazine style category template as well"
+msgstr ""
+
+#: functions.php:454
+msgid "Before Subnews 315x90"
+msgstr ""
+
+#: functions.php:459
+msgid "Page Widget"
+msgstr ""
+
+#: functions.php:461
+msgid "Use widgetized page template"
+msgstr ""
+
+#: functions.php:464
+msgid "Post Widget"
+msgstr ""
+
+#: functions.php:466
+msgid "Displays below post entries"
+msgstr ""
+
+#: functions.php:469
+msgid "Classic Home - Top Left - Above Entries"
+msgstr ""
+
+#: functions.php:471
+msgid "No Slider Homepage Template, Top Left Column - Above Entries"
+msgstr ""
+
+#: functions.php:474
+msgid "Classic Home - Top Left - Below Entries"
+msgstr ""
+
+#: functions.php:476
+msgid "No Slider Homepage Template, Top Left Column - Below Entries"
+msgstr ""
+
+#: functions.php:479
+msgid "Classic Home - Top Mid - Above Entries"
+msgstr ""
+
+#: functions.php:481 functions.php:486
+msgid "No Slider Homepage Template, Top Mid Column"
+msgstr ""
+
+#: functions.php:484
+msgid "Classic Home - Top Mid - Below Entries"
+msgstr ""
+
+#: functions.php:489
+msgid "Classic Home - Top Right - Above Entries"
+msgstr ""
+
+#: functions.php:491 functions.php:496
+msgid "No Slider Homepage Template, Top Right Column"
+msgstr ""
+
+#: functions.php:494
+msgid "Classic Home - Top Right - Below Entries"
+msgstr ""
+
+#: functions.php:499
+msgid "Classic Home - 728px Ad"
+msgstr ""
+
+#: functions.php:501
+msgid "The 728px ad shown below top mid and right columns"
+msgstr ""
+
+#: functions.php:504
+msgid "3 Column Post Layout - Right Sidebar"
+msgstr ""
+
+#: functions.php:506
+msgid "153px - The 3rd sidebar that shows on 3 column post layout"
+msgstr ""
+
+#: functions.php:564 functions.php:565
+msgid "Gabfire Custom Fields"
+msgstr ""
+
+#: functions.php:586
+msgid "Is Featured?"
+msgstr ""
+
+#: functions.php:588
+msgid ""
+"Check this box to display this post on featured section of front page.</"
+"br><strong>Note:</strong> This will only work if Custom Field option is "
+"enabled within Theme Options."
+msgstr ""
+
+#: functions.php:594
+msgid "Post Entrance"
+msgstr ""
+
+#: functions.php:597
+msgid ""
+"Enter a paragraph of text to display with a larger font size above entry."
+msgstr ""
+
+#: functions.php:604
+msgid "Video URL"
+msgstr ""
+
+#: functions.php:606
+msgid ""
+"You can add any Youtube, Vimeo, Dailymotion or Screenr video url into this "
+"box"
+msgstr ""
+
+#: functions.php:613
+msgid "Disable Featured Image on this post?"
+msgstr ""
+
+#: functions.php:615
+msgid ""
+"If you have enabled featured post on single post page option, the featured "
+"image shows at top of every post automatically. You may check this box to "
+"disable that image for certain posts."
+msgstr ""
+
+#: functions.php:621
+msgid "Disable innerpage slider for this post"
+msgstr ""
+
+#: functions.php:623
+msgid ""
+"If you have enabled innerpage slider sitewide, but specifically want to "
+"disable it for this post, check this box."
+msgstr ""
+
+#: functions.php:629
+msgid "Post Page Layout?"
+msgstr ""
+
+#: functions.php:631
+msgid ""
+"Select a Post layout</br><strong>Note:</strong> Select Big Picture only if "
+"you have uploaded more than 1 photo"
+msgstr ""
+
+#: functions.php:635
+msgid "Default Blog Post"
+msgstr ""
+
+#: functions.php:636
+msgid "Big Picture"
+msgstr ""
+
+#: functions.php:637
+msgid "Big Slider"
+msgstr ""
+
+#: functions.php:638
+msgid "3 Column Post Layout"
+msgstr ""
+
+#: functions.php:639
+msgid "Left Sidebar"
+msgstr ""
+
+#: functions.php:640
+msgid "No Sidebar"
+msgstr ""
+
+#: functions.php:646
+msgid "Disable Share Icons?"
+msgstr ""
+
+#: functions.php:648
+msgid "Check to disable share icons for this post/page."
+msgstr ""
+
+#: functions.php:791
+#, php-format
+msgid ""
+"<p><a class=\"button-primary\" target=\"_blank\" href=\"%1$s\">%4$s "
+"Installation Guide</a> <a class=\"button-primary\" target=\"_blank\" href="
+"\"%2$s\">Codex</a> <a class=\"button-primary\" target=\"_blank\" href=\"%1$s"
+"\">Support Forums</a></p><p>For better Media Handling, we suggest you to "
+"install <a href=\""
+msgstr ""
+
+#: functions.php:834
+msgid "Share on Facebook"
+msgstr ""
+
+#: functions.php:842
+msgid "Add to Google+"
+msgstr ""
+
+#: functions.php:854
+msgid "Print This Post"
+msgstr ""
+
+#: header.php:77
+msgid "Sunday"
+msgstr ""
+
+#: header.php:77
+msgid "Monday"
+msgstr ""
+
+#: header.php:77
+msgid "Tuesday"
+msgstr ""
+
+#: header.php:77
+msgid "Wednesday"
+msgstr ""
+
+#: header.php:77
+msgid "Thursday"
+msgstr ""
+
+#: header.php:77
+msgid "Friday"
+msgstr ""
+
+#: header.php:77
+msgid "Saturday"
+msgstr ""
+
+#: header.php:78
+msgid "January"
+msgstr ""
+
+#: header.php:78
+msgid "February"
+msgstr ""
+
+#: header.php:78
+msgid "March"
+msgstr ""
+
+#: header.php:78
+msgid "April"
+msgstr ""
+
+#: header.php:78
+msgid "May"
+msgstr ""
+
+#: header.php:78
+msgid "June"
+msgstr ""
+
+#: header.php:78
+msgid "July"
+msgstr ""
+
+#: header.php:78
+msgid "August"
+msgstr ""
+
+#: header.php:78
+msgid "September"
+msgstr ""
+
+#: header.php:78
+msgid "October"
+msgstr ""
+
+#: header.php:78
+msgid "November"
+msgstr ""
+
+#: header.php:78
+msgid "December"
+msgstr ""
+
+#: header.php:88 woocommerce/gabfire-woocommerce.php:76
+msgid "Facebook"
+msgstr ""
+
+#: header.php:94 woocommerce/gabfire-woocommerce.php:71
+msgid "Twitter"
+msgstr ""
+
+#: header.php:100 woocommerce/gabfire-woocommerce.php:81
+msgid "Google+"
+msgstr ""
+
+#: header.php:106
+msgid "LinkedIn"
+msgstr ""
+
+#: header.php:112 woocommerce/gabfire-woocommerce.php:86
+msgid "Pinterest"
+msgstr ""
+
+#: header.php:112
+msgid "Follow on Pinterest"
+msgstr ""
+
+#: header.php:118
+msgid "tumblr"
+msgstr ""
+
+#: header.php:118
+msgid "Follow on Tumblr"
+msgstr ""
+
+#: header.php:124
+msgid "Vimeo"
+msgstr ""
+
+#: header.php:124
+msgid "Watch on Vimeo"
+msgstr ""
+
+#: header.php:130
+msgid "Youtube"
+msgstr ""
+
+#: header.php:130
+msgid "Watch on YouTube"
+msgstr ""
+
+#: header.php:141
+msgid "Site feed"
+msgstr ""
+
+#: header.php:147
+msgid "Search"
+msgstr ""
+
+#: header.php:282
+msgid "HOME"
+msgstr ""
+
+#: header.php:293
+msgid "Cart"
+msgstr ""
+
+#: loop-default.php:51
+msgid "Sorry, nothing matched your criteria"
+msgstr ""
+
+#: loop-media.php:59
+msgid "Previous"
+msgstr ""
+
+#: loop-media.php:60
+msgid "Next"
+msgstr ""
+
+#: loop-media.php:64
+msgid "MORE ON"
+msgstr ""
+
+#: options.php:91
+msgid "Disable"
+msgstr ""
+
+#: options.php:91
+msgid "Tag-based"
+msgstr ""
+
+#: options.php:91
+msgid "Site Wide"
+msgstr ""
+
+#: options.php:94
+msgid "Text Based Logo"
+msgstr ""
+
+#: options.php:94
+msgid "Image Based Logo"
+msgstr ""
+
+#: options.php:141
+msgid "General"
+msgstr ""
+
+#: options.php:143
+msgid "Homepage Layout"
+msgstr ""
+
+#: options.php:144
+msgid "Select homepage layout"
+msgstr ""
+
+#: options.php:148
+msgid "Advanced Layout with Slider"
+msgstr ""
+
+#: options.php:149
+msgid "Simple Layout without Slider"
+msgstr ""
+
+#: options.php:151
+msgid "Select header style"
+msgstr ""
+
+#: options.php:152
+msgid ""
+"Set your header either to display a single image, logo and banner, or logo "
+"with quotes."
+msgstr ""
+
+#: options.php:160
+msgid "Header image (if single image selected)"
+msgstr ""
+
+#: options.php:161
+msgid ""
+"If single image option is selected as header type, upload an image 960px "
+"wide."
+msgstr ""
+
+#: options.php:165
+msgid "Logo Type"
+msgstr ""
+
+#: options.php:166
+msgid ""
+"If text-based logo is selected, set site name and tagline on WordPress "
+"General Settings page."
+msgstr ""
+
+#: options.php:172
+msgid "Custom Logo"
+msgstr ""
+
+#: options.php:173
+msgid ""
+"If image-based logo is selected, upload a logo for your theme, or specify "
+"the image address of your online logo. (http://yoursite.com/logo.png) [Max "
+"Width: 360px]"
+msgstr ""
+
+#: options.php:177
+msgid "Text Logo"
+msgstr ""
+
+#: options.php:178
+msgid "If text-based logo is selected, enter text to display on first row."
+msgstr ""
+
+#: options.php:183
+msgid "If text-based logo is selected, enter text to display on second row."
+msgstr ""
+
+#: options.php:188
+msgid "Logo Padding Top"
+msgstr ""
+
+#: options.php:189
+msgid "Set a padding value between logo and top line."
+msgstr ""
+
+#: options.php:195
+msgid "Logo Padding Bottom"
+msgstr ""
+
+#: options.php:196
+msgid "Set a padding value between logo and bottom line."
+msgstr ""
+
+#: options.php:202
+msgid "Logo Padding Left"
+msgstr ""
+
+#: options.php:203
+msgid "Set a padding value between logo and left line."
+msgstr ""
+
+#: options.php:208
+msgid "Custom Favicon"
+msgstr ""
+
+#: options.php:209
+msgid ""
+"Upload a 16px x 16px png / gif image that will represent your website "
+"favicon."
+msgstr ""
+
+#: options.php:213
+msgid "RSS"
+msgstr ""
+
+#: options.php:214
+msgid "Link to third party feed handler. <br/> [http://www.url.com]"
+msgstr ""
+
+#: options.php:218
+msgid "Quotes"
+msgstr ""
+
+#: options.php:220
+msgid "Header Left Quote (only if Header with Quotes is activated)"
+msgstr ""
+
+#: options.php:221
+msgid "Left quote caption"
+msgstr ""
+
+#: options.php:226
+msgid "Left quote text"
+msgstr ""
+
+#: options.php:231
+msgid "Left quote image. Max width 80px"
+msgstr ""
+
+#: options.php:236
+msgid "Left Quote Link <br /> eg. http://www.yahoo.com"
+msgstr ""
+
+#: options.php:240
+msgid "Header Right Quote (only if Header with Quotes is activated)"
+msgstr ""
+
+#: options.php:241
+msgid "Right quote caption"
+msgstr ""
+
+#: options.php:246
+msgid "Right quote text"
+msgstr ""
+
+#: options.php:251
+msgid "Right quote image. Max width 80px"
+msgstr ""
+
+#: options.php:256
+msgid "Right Quote Link <br /> eg. http://www.yahoo.com"
+msgstr ""
+
+#: options.php:260
+msgid "Navigation"
+msgstr ""
+
+#: options.php:263
+msgid "Sort Categories"
+msgstr ""
+
+#: options.php:264
+msgid "Display categories in ascending or descending order"
+msgstr ""
+
+#: options.php:270
+msgid "Order Categories"
+msgstr ""
+
+#: options.php:271
+msgid ""
+"Display categories in alphabetical order, by category ID, or by the count of "
+"posts"
+msgstr ""
+
+#: options.php:278
+msgid "Exclude Categories"
+msgstr ""
+
+#: options.php:279
+msgid ""
+"ID number of cat(s) to exclude from navigation (eg 1,2,3,4 - no spaces) <a "
+"href=\"http://www.gabfirethemes.com/how-to-check-category-ids/\" target="
+"\"_blank\">How check category/page ID</a>"
+msgstr ""
+
+#: options.php:284
+msgid "Exclude Pages"
+msgstr ""
+
+#: options.php:285
+msgid ""
+"ID number of page(s) to exclude from navigation (eg 1,2,3,4 - no spaces) <a "
+"href=\"http://www.gabfirethemes.com/how-to-check-category-ids/\" target="
+"\"_blank\">How check category/page ID</a>"
+msgstr ""
+
+#: options.php:290
+msgid "Homepage"
+msgstr ""
+
+#: options.php:293
+msgid ""
+"There are two homepage layouts (Advanced and Simple) included into this "
+"theme. Go through each options below only if you have selected advanced "
+"homepage layout under General section. Otherwise skip this tab and proceed "
+"with next one."
+msgstr ""
+
+#: options.php:296 options.php:592
+msgid "Do not duplicate posts"
+msgstr ""
+
+#: options.php:297 options.php:593
+msgid ""
+"No matter what categories are selected for front page sections, if a post is "
+"displayed once do not duplicate it on front page"
+msgstr ""
+
+#: options.php:302 options.php:797
+msgid "Featured Slider"
+msgstr ""
+
+#: options.php:303 options.php:612
+msgid ""
+"Select a base query type to determine how this content area is populated"
+msgstr ""
+
+#: options.php:314
+msgid ""
+"If base query type is Category or Tag-based, please identify the category or "
+"tag. </br>If base query type is Custom Field, posts which are marked as "
+"featured (checkbox labeled as <strong>Is Featured</strong> enabled on "
+"<strong>Add/Edit Post</strong> screen) will be displayed."
+msgstr ""
+
+#: options.php:317 options.php:626
+msgid "If category based: Select a category for entries."
+msgstr ""
+
+#: options.php:322 options.php:631
+msgid "If tag based: Select a tag for entries."
+msgstr ""
+
+#: options.php:327
+msgid "Number of Entries to display"
+msgstr ""
+
+#: options.php:334
+msgid "Below Featured"
+msgstr ""
+
+#: options.php:335 options.php:367 options.php:380 options.php:393
+#: options.php:407 options.php:420 options.php:433 options.php:446
+#: options.php:459 options.php:514 options.php:527 options.php:540
+#: options.php:553 options.php:566 options.php:579 options.php:604
+#: options.php:656 options.php:669 options.php:682 options.php:695
+#: options.php:708 options.php:721 options.php:776 options.php:789
+msgid "Number of entries to display. <br />Set 0 to disable"
+msgstr ""
+
+#: options.php:336 options.php:362 options.php:375 options.php:388
+#: options.php:402 options.php:415 options.php:428 options.php:441
+#: options.php:454 options.php:509 options.php:522 options.php:535
+#: options.php:548 options.php:561 options.php:574 options.php:599
+#: options.php:651 options.php:664 options.php:677 options.php:690
+#: options.php:703 options.php:716 options.php:771 options.php:784
+msgid "Select a category"
+msgstr ""
+
+#: options.php:341
+msgid ""
+"Number of Entries to display. [2 is the suggested # of posts for best "
+"responsive layout.]"
+msgstr ""
+
+#: options.php:348
+msgid "Primary Mid Column"
+msgstr ""
+
+#: options.php:349
+msgid "Select a category for right hand of featured column"
+msgstr ""
+
+#: options.php:354
+msgid ""
+"Number of Entries to display. [4 is the suggested # of posts for best "
+"responsive layout.]"
+msgstr ""
+
+#: options.php:361
+msgid "Secondary Top Left [Breaking News]"
+msgstr ""
+
+#: options.php:374
+msgid "Secondary Top Mid Column"
+msgstr ""
+
+#: options.php:387
+msgid "Secondary Top Right Column"
+msgstr ""
+
+#: options.php:401 options.php:663
+msgid "Tabbed Content #1"
+msgstr ""
+
+#: options.php:414 options.php:676
+msgid "Tabbed Content #2"
+msgstr ""
+
+#: options.php:427 options.php:689
+msgid "Tabbed Content #3"
+msgstr ""
+
+#: options.php:440 options.php:702
+msgid "Tabbed Content #4"
+msgstr ""
+
+#: options.php:453 options.php:715
+msgid "Tabbed Content #5"
+msgstr ""
+
+#: options.php:467 options.php:729
+msgid "Secondary Bottom Left Column"
+msgstr ""
+
+#: options.php:468 options.php:496 options.php:730 options.php:758
+msgid "Select a category."
+msgstr ""
+
+#: options.php:473 options.php:735
+msgid "Number of entries to without thumbs but with big headlines."
+msgstr ""
+
+#: options.php:480 options.php:742
+msgid "Number of entries to display with small thumbs."
+msgstr ""
+
+#: options.php:487 options.php:749
+msgid "Number of entries to display with big thumbs."
+msgstr ""
+
+#: options.php:495 options.php:757
+msgid "Secondary Bottom Right Column"
+msgstr ""
+
+#: options.php:501 options.php:763
+msgid "Number of entries to display."
+msgstr ""
+
+#: options.php:508 options.php:770
+msgid "Subnews #1"
+msgstr ""
+
+#: options.php:521 options.php:783
+msgid "Subnews #2"
+msgstr ""
+
+#: options.php:534
+msgid "Subnews #3"
+msgstr ""
+
+#: options.php:547
+msgid "Subnews #4"
+msgstr ""
+
+#: options.php:560
+msgid "Subnews #5"
+msgstr ""
+
+#: options.php:573
+msgid "Subnews #6"
+msgstr ""
+
+#: options.php:586
+msgid "Homepage Classic"
+msgstr ""
+
+#: options.php:589
+msgid ""
+"There are two homepage layouts (Advanced and Simple) included into this "
+"theme. Go through each options below only if you have selected simple "
+"homepage layout under General section. Otherwise skip this tab and proceed "
+"with next one."
+msgstr ""
+
+#: options.php:598
+msgid "Primary Top Left [Breaking News]"
+msgstr ""
+
+#: options.php:611
+msgid "Featured Section"
+msgstr ""
+
+#: options.php:623
+msgid ""
+"If base query type is Category or Tag-based, please identify the category or "
+"tag. </br>If base query type is Custom Field, posts which are marked as "
+"featured (checkbox labeled as <strong>Is Featured</strong> is enabled on "
+"<strong>Add/Edit Post</strong> screen) will be displayed)."
+msgstr ""
+
+#: options.php:636
+msgid "Number of Entries to display with big thumbnails"
+msgstr ""
+
+#: options.php:643
+msgid "Number of Entries to display with small thumbnails"
+msgstr ""
+
+#: options.php:650
+msgid "Primary Top Right Column"
+msgstr ""
+
+#: options.php:796
+msgid "Sliders"
+msgstr ""
+
+#: options.php:798
+msgid "Auto rotation speed. Slide to next slide in X seconds"
+msgstr ""
+
+#: options.php:805
+msgid "Inner-Page Slider"
+msgstr ""
+
+#: options.php:806
+msgid ""
+"Automatically create slideshow of uploaded photos in post entries to be "
+"displayed below post title. [Note: Select options include displaying slider "
+"site-wide, tag-based, or to disable completely]."
+msgstr ""
+
+#: options.php:813
+msgid ""
+"If tag-based option is selected, display posts assigned this tag to be shown "
+"in inner-page slider. <br/> [Note: Posts with multiple image attachments and "
+"tagged with this key will display within slider]."
+msgstr ""
+
+#: options.php:819
+msgid "Enable auto rotation for innerpage slider."
+msgstr ""
+
+#: options.php:824
+msgid ""
+"(If auto rotate enabled) define pause time between 2 slides. [in seconds]"
+msgstr ""
+
+#: options.php:830
+msgid "Image Handling"
+msgstr ""
+
+#: options.php:832
+msgid "Featured Image Post Display"
+msgstr ""
+
+#: options.php:833
+msgid "Auto resize and display featured image on single post - above entry."
+msgstr ""
+
+#: options.php:838
+msgid "Enable images on subnews"
+msgstr ""
+
+#: options.php:839
+msgid "Check this box to display thumbnails on 8 vertical subnews blocks"
+msgstr ""
+
+#: options.php:844
+msgid "Footer"
+msgstr ""
+
+#: options.php:846
+msgid "Custom Text (Left)"
+msgstr ""
+
+#: options.php:847 options.php:852
+msgid "Custom HTML and Text that will appear in the footer of your theme."
+msgstr ""
+
+#: options.php:851
+msgid "Custom Text (Right)"
+msgstr ""
+
+#: options.php:856
+msgid "Ads"
+msgstr ""
+
+#: options.php:859
+msgid ""
+"To display a banner on your site, Download Gabfire Widget Pack plugin -> "
+"activate the plugin -> Appearance -> Gabfire Widget Pack -> Activate Simple "
+"Ads widget -> move that widget into any widget zone where you would want to "
+"show a banner"
+msgstr ""
+
+#: options.php:862
+msgid "Miscellaneous"
+msgstr ""
+
+#: options.php:864
+msgid "Archive - Media Category Template"
+msgstr ""
+
+#: options.php:865
+msgid ""
+"ID number of cat(s) to use media gallery template (separate with comma if "
+"more than 1 category is entered)"
+msgstr ""
+
+#: options.php:870
+msgid "Archive - 2 Column Category Template"
+msgstr ""
+
+#: options.php:871
+msgid ""
+"ID number of cat(s) to use 2 column category template (separate with comma "
+"if more than 1 category is entered)"
+msgstr ""
+
+#: options.php:876
+msgid "Archive - 2 Column Category Template - Full"
+msgstr ""
+
+#: options.php:877
+msgid ""
+"ID number of cat(s) to use 2 column - no sidebar category template (separate "
+"with comma if more than 1 category is entered)"
+msgstr ""
+
+#: options.php:882
+msgid "Archive - 2 column with sidebar and slider"
+msgstr ""
+
+#: options.php:883 options.php:907
+msgid ""
+"ID number of cat(s) to use magazine style category template (separate with "
+"comma if more than 1 category is entered)"
+msgstr ""
+
+#: options.php:888
+msgid "Archive - 3 Column Category Template"
+msgstr ""
+
+#: options.php:889
+msgid ""
+"ID number of cat(s) to use 3 column category template (separate with comma "
+"if more than 1 category is entered)"
+msgstr ""
+
+#: options.php:894
+msgid "Archive - 3 Column Category Template - Full"
+msgstr ""
+
+#: options.php:895
+msgid ""
+"ID number of cat(s) to use 3 column - no sidebar category template (separate "
+"with comma if more than 1 category is entered)"
+msgstr ""
+
+#: options.php:900
+msgid "Archive - 4 Column Category Template"
+msgstr ""
+
+#: options.php:901
+msgid ""
+"ID number of cat(s) to use 4 column category template (separate with comma "
+"if more than 1 category is entered)"
+msgstr ""
+
+#: options.php:906
+msgid "Archive - Magazine Style Category Template"
+msgstr ""
+
+#: options.php:912
+msgid "Header - Social Items"
+msgstr ""
+
+#: options.php:913
+msgid "Disable header social links"
+msgstr ""
+
+#: options.php:918
+msgid "Link to Facebook account. <br/> [http://www.facebook.com/gabfire]"
+msgstr ""
+
+#: options.php:923
+msgid "Link to Twitter Account. <br/> [http://www.twitter.com/gabfirethemes]"
+msgstr ""
+
+#: options.php:928
+msgid ""
+"Link to Google+ Account. <br/> [https://plus.google."
+"com/106104916131754615481/posts]"
+msgstr ""
+
+#: options.php:933
+msgid ""
+"Link to LinkedIn Account. <br/> [http://www.linkedin.com/company/gabfire-"
+"themes]"
+msgstr ""
+
+#: options.php:938
+msgid "Link to Pinterest Account. <br/> [http://www.pinterest.com]"
+msgstr ""
+
+#: options.php:943
+msgid "Link to Tumblr Account. <br/> [http://www.tumblr.com]"
+msgstr ""
+
+#: options.php:948
+msgid "Link to Vimeo Account. <br/> [http://vimeo.com/gabfire]"
+msgstr ""
+
+#: options.php:953
+msgid ""
+"Link to Youtube Account. <br/> [http://www.youtube.com/user/gabfirethemes]"
+msgstr ""
+
+#: options.php:958
+msgid ""
+"Email subscribe link. <br/> [http://feedburner.google.com/fb/a/mailverify?"
+"uri=gabfirethemes]"
+msgstr ""
+
+#: options.php:963
+msgid "Display a link to site feeds on masthead navigation"
+msgstr ""
+
+#: options.php:968
+msgid "Shortcodes"
+msgstr ""
+
+#: options.php:969
+msgid "Enable shortcodes functionality"
+msgstr ""
+
+#: options.php:974
+msgid "Widget Map"
+msgstr ""
+
+#: options.php:975
+msgid ""
+"Display the location of widgets on front page. After checking widget "
+"locations <strong>be sure to uncheck this option</strong>"
+msgstr ""
+
+#: options.php:980
+msgid "Custom Styling"
+msgstr ""
+
+#: options.php:982
+msgid "Custom CSS"
+msgstr ""
+
+#: options.php:983
+msgid "If you have custom CSS code you wish to apply, enter it in this block."
+msgstr ""
+
+#: options.php:987
+msgid "Enable custom styles."
+msgstr ""
+
+#: options.php:992
+msgid "Body background & typography"
+msgstr ""
+
+#: options.php:993
+msgid "Change body background and font style"
+msgstr ""
+
+#: options.php:999
+msgid "Select a background for site."
+msgstr ""
+
+#: options.php:1006
+msgid "Specify the body font properties"
+msgstr ""
+
+#: options.php:1012
+msgid ""
+"Post Title Font Family. Avilable Google Fonts are Droid Sans, Open Sans, "
+"Roboto Condensed "
+msgstr ""
+
+#: options.php:1018
+msgid "Change Colors"
+msgstr ""
+
+#: options.php:1019
+msgid "Primary Site Colors"
+msgstr ""
+
+#: options.php:1025
+msgid "Link Color"
+msgstr ""
+
+#: options.php:1031
+msgid "Post title link color"
+msgstr ""
+
+#: options.php:1037
+msgid "Post title hovered link color"
+msgstr ""
+
+#: options.php:1043 options.php:1050
+msgid "Main Navigation"
+msgstr ""
+
+#: options.php:1044
+msgid "Edit Colors on Main Navigation"
+msgstr ""
+
+#: options.php:1051
+msgid "Main Navigation Background Image"
+msgstr ""
+
+#: options.php:1057
+msgid "Main Navigation Bar - Border Bottom Color"
+msgstr ""
+
+#: options.php:1063
+msgid "Main navigation Link Color"
+msgstr ""
+
+#: options.php:1069
+msgid "Main navigation Selected Link Color"
+msgstr ""
+
+#: options.php:1075
+msgid "Main navigation Hovered Link Color"
+msgstr ""
+
+#: options.php:1081
+msgid "Main navigation Dropdown Menu Link Color"
+msgstr ""
+
+#: options.php:1087
+msgid "Main navigation Dropdown Menu Hovered Link Color"
+msgstr ""
+
+#: options.php:1093
+msgid "Main navigation Dropdown Menu Border Color"
+msgstr ""
+
+#: options.php:1099
+msgid "Main navigation Dropdown Menu Background Color"
+msgstr ""
+
+#: options.php:1105
+msgid "Main navigation Dropdown Menu Hovered Menu Item Background Color"
+msgstr ""
+
+#: options.php:1111 options.php:1191
+msgid "Main navigation Dropdown Menu Selected Menu Item Link Color"
+msgstr ""
+
+#: options.php:1117 options.php:1197
+msgid "Main navigation Dropdown Menu Selected Menu Item Background Color"
+msgstr ""
+
+#: options.php:1124
+msgid "Edit Colors on Secondary Navigation"
+msgstr ""
+
+#: options.php:1130
+msgid "Secondary Navigation Navigation"
+msgstr ""
+
+#: options.php:1131
+msgid "Secondary Navigation Navigation Background Color"
+msgstr ""
+
+#: options.php:1137
+msgid "Secondary Navigation Navigation Bar - Border Bottom Color"
+msgstr ""
+
+#: options.php:1143
+msgid "Secondary Navigation navigation Link Color"
+msgstr ""
+
+#: options.php:1149
+msgid "Secondary Navigation navigation Selected Link Color"
+msgstr ""
+
+#: options.php:1155
+msgid "Secondary Navigation navigation Hovered Link Color"
+msgstr ""
+
+#: options.php:1161
+msgid "Secondary Navigation navigation Dropdown Menu Link Color"
+msgstr ""
+
+#: options.php:1167
+msgid "Secondary Navigation navigation Dropdown Menu Hovered Link Color"
+msgstr ""
+
+#: options.php:1173
+msgid "Secondary Navigation navigation Dropdown Menu Border Color"
+msgstr ""
+
+#: options.php:1179
+msgid "Secondary Navigation navigation Dropdown Menu Background Color"
+msgstr ""
+
+#: options.php:1185
+msgid ""
+"Secondary Navigation navigation Dropdown Menu Hovered Menu Item Background "
+"Color"
+msgstr ""
+
+#: searchform.php:7
+msgid "Search in Site"
+msgstr ""
+
+#: searchform.php:12
+msgid "To search in site, type your keyword and hit enter"
+msgstr ""
+
+#: searchform.php:18
+msgid "Close"
+msgstr ""
+
+#: templates/tpl-authors.php:76
+msgid "Prev. Entries"
+msgstr ""
+
+#: woocommerce/gabfire-woocommerce.php:128
+msgid "Out of Stock"
+msgstr ""
+
+#: woocommerce/gabfire-woocommerce.php:139
+msgid "Continue Shopping"
+msgstr ""
+
+#: woocommerce/gabfire-woocommerce.php:140
+msgid "View Cart"
+msgstr ""
+
+#: woocommerce/gabfire-woocommerce.php:140
+msgid "Product successfully added to your cart."
+msgstr ""
+
+#: woocommerce/loop/add-to-cart.php:34
+msgid "Show Details"
+msgstr ""

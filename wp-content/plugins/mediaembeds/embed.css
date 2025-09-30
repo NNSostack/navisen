@@ -1,0 +1,23 @@
+body {
+	margin: 0;
+	padding: 0;
+	text-align: center;
+/*	background-color: #008f00 */
+}
+div.emlink{
+	margin-top: 8px;
+}
+/*
+.content{
+	background-color: #b6efa9;
+	float: left; 
+}
+
+.content.storify{
+	background-color: #006aff;
+}
+
+.content.mapbox{
+	background-color: #006aff;
+}
+*/

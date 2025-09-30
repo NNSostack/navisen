@@ -1,0 +1,19 @@
+body {
+	margin: 0;
+	padding: 0;
+	text-align: center;
+/*	background-color: #4cff00 */
+}
+
+#ruc_me_content{
+/*	background-color: #b6efa9; */
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	
+}
+
+#ruc_me_content iframe{
+	width: 100%;
+	
+}
