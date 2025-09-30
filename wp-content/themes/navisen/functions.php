@@ -537,3 +537,15 @@ function navisen_curl_before_request($curlhandle){
         session_write_close();
 }
 add_action( 'requests-curl.before_request','navisen_curl_before_request', 9999 );
+
+function navisen_force_login() {
+    if ( ! is_user_logged_in() && ! is_admin() && ! in_array( $GLOBALS['pagenow'], array('wp-login.php', 'wp-register.php') ) ) {
+        auth_redirect();
+    }
+}
+add_action( 'template_redirect', 'navisen_force_login' );
+
+/* Needed stuff */
+
+add_filter('use_block_editor_for_post', '__return_false', 10);
+add_filter('use_block_editor_for_page', '__return_false', 10);
