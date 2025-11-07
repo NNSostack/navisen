@@ -1,0 +1,17 @@
+﻿.is-loading {
+    opacity: 0.5;
+    pointer-events: none;
+    position: relative;
+}
+
+.is-loading::after {
+    content: "Opdaterer...";
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.8);
+    font-weight: 600;
+    color: #333;
+}
