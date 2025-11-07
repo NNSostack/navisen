@@ -11,7 +11,20 @@ jQuery(function ($) {
         $flexBoxes = $('.jsFlexBox');
         
         for (var i = 0; i < $flexBoxes.length; i++) {
+            
             $($flexBoxes[i]).attr("data-category-slug", window.currentPageBoxes[i].category.slug);
+            
+            const flexBox = $($flexBoxes[i]);
+
+            // Gå op til parent .wpb_wrapper
+            const wrapper = flexBox.closest('.wpb_wrapper');
+
+            // Find den tilhørende .jsFlexBoxTitle inden i samme wrapper
+            const title = wrapper.find('.jsFlexBoxTitle');
+
+            // Fx læs titlen:
+            const titleEl = title.find('.td-pulldown-size');
+            $(titleEl).text(window.currentPageBoxes[i].category.name);
         }
     }
 
@@ -22,7 +35,7 @@ jQuery(function ($) {
             nonce: myAjax.nonce
         }, function (response) {
             if (response.success) {
-                window.postListCategories = response.data;
+                window.postListCategories = response.data.data;
 
                 //  Add configuration to every post
                 $('.showInfo').remove();
@@ -30,6 +43,7 @@ jQuery(function ($) {
                 $('.td-cpt-post').each(function (index, element) {
                     let postId = getPostId(element);
                     $(element).attr('data-post-id', postId);
+                    $(element).addClass("isPost");
 
                     const category = $(this).closest('.jsFlexBox').attr("data-category-slug");
                     htmlToInsert = getConfigHtml(html, postId, category);
@@ -41,6 +55,16 @@ jQuery(function ($) {
                     $('article.post h1').append(htmlToInsert);
                 }
 
+                //  Mark future posts
+                futurePosts = response.data.future_posts;
+                
+                // Loop gennem alle ID'er og sæt en klasse
+                $.each(futurePosts, function (index, postId) {
+                    $('.isPost[data-post-id="' + postId + '"]').addClass('is-future');
+                });
+
+                applyDividers();
+
                 //  on click show popup
                 $(".showInfo span[data-post-id]").filter(function () {
                     return $(this).attr("data-post-id") != "-1";
@@ -48,7 +72,12 @@ jQuery(function ($) {
                     const parentEl = $(this).closest('.showInfo');
                     
 
-                    attachCategoryDropdown(parentEl, function (cat, postId, remove) {
+                    attachCategoryDropdown(parentEl, !window.editLists, function (cat, postId, remove) {
+                        if (cat == null) {
+                            //  Edit lists
+                            location.href = window.editListsUrl;
+                        }
+
                         const flexBox = $(parentEl).closest('.jsFlexBox .td_block_inner');
                         const categoryFrom = $(flexBox).find(".postInfo").attr("data-category-slug");
 
@@ -66,11 +95,11 @@ jQuery(function ($) {
                             nonce: myAjax.nonce
                         }, function (response) {
                             if (response.success) {
-                                reloadSection(flexBox, function () {
-                                    addConfigurationOptions();
-                                });
+                                if (!globalPostId) {
+                                    reloadSection(flexBox, function () {
+                                        addConfigurationOptions();
+                                    });
 
-                                if (!remove) {
                                     $('.jsFlexBox').each(function () {
                                         flexBoxCat = $(this).attr("data-category-slug");
                                         if (flexBoxCat == targetCat || flexBoxCat == categoryFrom) {
@@ -79,6 +108,9 @@ jQuery(function ($) {
                                             });
                                         }
                                     });
+                                }
+                                else {
+                                    addConfigurationOptions();
                                 }
                             } else {
                                 alert('Fejl: ' + (response.data?.message || 'Ukendt fejl'));
@@ -170,12 +202,48 @@ jQuery(function ($) {
             nonce: myAjax.nonce
         }, function (response) {
             if (response.success) {
-                console.log("Yes sir!!!");
+                applyDividers();
             } else {
                 alert('Fejl: ' + (response.data?.message || 'Ukendt fejl'));
             }
         });
     }
 
+    function applyDividers() {
+        if (!window.editLists) {
+            return;
+        }
+
+        frontpageBoxes.forEach(function (item, index) {
+            applyDivider(".jsFlexBox[data-category-slug='" + item.category.slug + "']", item.limit);
+        });
+    }
+
+    function applyDivider(parentSelector, limit) {
+        // Fjern tidligere markeringer
+        $(parentSelector + ' .isPost').removeClass('has-divider');
+
+        let count = 0;
+        console.log($(parentSelector + ' .isPost'));
+
+        $(parentSelector + ' .isPost').each(function () {
+            
+            const $post = $(this);
+
+            // Spring future-indlæg over
+            if ($post.hasClass('is-future')) {
+                return; // continue
+            }
+
+            count++;
+
+            if (count === limit) {
+                $post.addClass('has-divider');
+            }
+            else if (count > limit) {
+                $post.addClass('not-visible');
+            }
+        });
+    }
 });
 

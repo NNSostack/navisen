@@ -5,7 +5,7 @@
         if (existing) existing.remove();
     }
 
-    function createDropdown(onSelect, excludeSlugs) {
+    function createDropdown(createEditListItem, onSelect, excludeSlugs) {
         const dropdown = document.createElement('div');
         dropdown.className = 'category-dropdown';
 
@@ -62,13 +62,31 @@
                 e.stopPropagation();
                 removeCategoryDropdown();
                 if (typeof onSelect === 'function') {
-                    console.log("CLICK", "TRUE");
                     onSelect(cat, true);
                 }
             });
 
             dropdown.appendChild(item);
         });
+
+        if (createEditListItem) {
+            const item = document.createElement('div');
+            item.className = 'category-dropdown-item';
+            item.textContent = "Rediger lister";
+
+            item.addEventListener('click', function (e) {
+                e.stopPropagation();
+                removeCategoryDropdown();
+                if (typeof onSelect === 'function') {
+                    onSelect(null);
+                }
+            });
+
+            dropdown.appendChild(item);
+        }
+
+
+
 
         if (!hasItems) {
             dropdown.textContent = 'Ingen flere lister at flytte til';
@@ -82,7 +100,7 @@
      * element: DOM-node eller jQuery-objekt
      * onSelect(cat, el): callback når der vælges en kategori
      */
-    function attachCategoryDropdown(element, onSelect) {
+    function attachCategoryDropdown(element, createEditListItem, onSelect) {
         // Support jQuery-objekter
         const el = element.jquery ? element[0] : element;
 
@@ -108,7 +126,7 @@
             }
 
             const rect = el.getBoundingClientRect();
-            const dropdown = createDropdown(function (cat, remove) {
+            const dropdown = createDropdown(createEditListItem, function (cat, remove) {
                 if (typeof onSelect === 'function') {
                     onSelect(cat, postId, remove);
                 } else {
