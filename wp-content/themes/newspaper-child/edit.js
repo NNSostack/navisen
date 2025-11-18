@@ -78,6 +78,12 @@ jQuery(function ($) {
                             location.href = window.editListsUrl;
                         }
 
+                        if (typeof cat == "string") {
+                            if (cat == "edit") {
+                                location.href = `/wp-admin/post.php?post=${postId}&action=edit`;
+                            }
+                        }
+
                         const flexBox = $(parentEl).closest('.jsFlexBox .td_block_inner');
                         const categoryFrom = $(flexBox).find(".postInfo").attr("data-category-slug");
 
@@ -102,7 +108,7 @@ jQuery(function ($) {
 
                                     $('.jsFlexBox').each(function () {
                                         flexBoxCat = $(this).attr("data-category-slug");
-                                        if (flexBoxCat == targetCat || flexBoxCat == categoryFrom) {
+                                        if (flexBoxCat == targetCat) {
                                             reloadSection($(this).find(".td_block_inner"), function () {
                                                 addConfigurationOptions();
                                             });
@@ -227,7 +233,6 @@ jQuery(function ($) {
         console.log($(parentSelector + ' .isPost'));
 
         $(parentSelector + ' .isPost').each(function () {
-            
             const $post = $(this);
 
             // Spring future-indlæg over
@@ -236,6 +241,7 @@ jQuery(function ($) {
             }
 
             count++;
+            $post.removeClass('not-visible');
 
             if (count === limit) {
                 $post.addClass('has-divider');

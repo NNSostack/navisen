@@ -11,77 +11,17 @@
  Text Domain: newspaper-child
 */
 
-.td-cpt-container {
-    min-height: 40px;
-    border: 1px dashed #ccc;
-    padding: 5px;
+.featured_caption {
+    z-index: 1;
+    text-align: left;
+    font-size: 11px !important;
+    font-style: italic;
+    font-weight: normal;
+    line-height: 17px;
+    color: #444;
 }
 
-.td-cpt-post {
-    margin-bottom: 4px;
-    background: #fff;
-    transition: width 0.2s ease, height 0.2s ease; /* Glat tilpasning */
+
+.factboxright > ul > li, .factboxleft > ul > li {
+    font-size: 14px!important;
 }
-
-.td-cpt-placeholder {
-    border: 1px dashed #999;
-    margin-bottom: 4px;
-    height: 40px;
-    background: #f9f9f9;
-}
-
-.td-drag-helper {
-    border: 2px solid #0078d7;
-    background: rgba(0, 120, 215, 0.08);
-    border-radius: 4px;
-    box-sizing: border-box;
-    cursor: move;
-    z-index: 9999;
-}
-
-.td-cpt-placeholder {
-    border: 2px dashed #999;
-    background: #f7f7f7;
-    margin-bottom: 4px;
-    height: 40px;
-}
-
-.td_block_inner {
-    min-height: 40px; /* giver altid noget at ramme */
-    position: relative;
-}
-
-.dragAndDrop .td_block_inner.td-empty::before {
-    content: 'Slip her for at tilføje';
-    display: block;
-    padding: 8px;
-    border: 2px dashed #ccc;
-    background: #f9f9f9;
-    font-size: 12px;
-    color: #777;
-    text-align: center;
-}
-
-.category-dropdown {
-    position: absolute;
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-    padding: 4px 0;
-    font-size: 14px;
-    z-index: 9999;
-    min-width: 150px;
-}
-
-.category-dropdown-item {
-    padding: 6px 10px;
-    cursor: pointer;
-    white-space: nowrap;
-}
-
-    .category-dropdown-item:hover {
-        background: #f0f0f0;
-    }
-
-

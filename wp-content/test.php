@@ -9,9 +9,24 @@ print_r("Mid: " . get_option('navisen_mid_list'));
 
 function mark_posts_with_category($post_ids_csv, $category_id) {
     $post_ids = array_map('intval', explode(',', $post_ids_csv));
+
+    $order = 100;
+
     foreach ($post_ids as $post_id) {
+
+        // Tjek at posten eksisterer
         if (get_post($post_id)) {
+
+            // Tilføj kategori
             wp_set_post_categories($post_id, [$category_id], true);
+
+            // Sæt menu_order
+            wp_update_post([
+                'ID'         => $post_id,
+                'menu_order' => $order
+            ]);
+
+            $order += 100; // næste bliver +100
         }
     }
 }
@@ -353,6 +368,7 @@ function nns_set_featured_from_first_img_all($post_type = 'post', $batch_size = 
         }
 
         foreach ( $q->posts as $post_id ) {
+
             // Spring over hvis vi ikke må overskrive og der allerede er thumbnail
             if (!$overwrite_existing && has_post_thumbnail($post_id)) {
                 msg(sprintf('[nns] Post %d har allerede thumbnail – springer over.', $post_id));
@@ -365,16 +381,58 @@ function nns_set_featured_from_first_img_all($post_type = 'post', $batch_size = 
                 continue;
             }
 
-            // Find første IMG-tag (vi skal både bruge hele tagget og src)
-            $img_tag_regex = '#<img\b[^>]*\bsrc\s*=\s*([\'"])(?P<src>[^\'"]+)\1[^>]*>#i';
-            if (!preg_match($img_tag_regex, $content, $m, PREG_OFFSET_CAPTURE)) {
-                // msg(sprintf('[nns] Post %d: intet billede i HTML.', $post_id));
-                continue;
+            $img_src      = null;
+            $remove_start = null;
+            $remove_len   = null;
+            $caption_text = null;
+
+            // === 1) Forsøg først at finde en [caption]-shortcode med et IMG ===
+            $caption_regex = '#\[caption\b[^\]]*\](?P<inner>.*?)\[/caption\]#is';
+            if (preg_match($caption_regex, $content, $cap, PREG_OFFSET_CAPTURE)) {
+                $caption_full  = $cap[0][0];
+                $caption_pos   = $cap[0][1];
+                $caption_inner = $cap['inner'][0];
+
+                // Find IMG inde i caption-indholdet
+                $img_tag_regex = '#<img\b[^>]*\bsrc\s*=\s*([\'"])(?P<src>[^\'"]+)\1[^>]*>#i';
+                if (preg_match($img_tag_regex, $caption_inner, $m_img)) {
+                    $img_src  = $m_img['src'];
+                    $img_tag  = $m_img[0];
+
+                    // Udtræk billedteksten = caption-indhold minus IMG-tagget
+                    $caption_text_raw = trim(str_replace($img_tag, '', $caption_inner));
+                    // Fjern HTML-tags og normaliser mellemrum
+                    $caption_plain = wp_strip_all_tags($caption_text_raw);
+                    $caption_plain = preg_replace('/\s+/', ' ', $caption_plain);
+                    $caption_text  = trim($caption_plain);
+
+                    // Vi fjerner hele caption-blokken
+                    $remove_start = $caption_pos;
+                    $remove_len   = strlen($caption_full);
+                }
             }
 
-            $full_tag      = $m[0][0];
-            $full_tag_pos  = $m[0][1];
-            $img_src       = $m['src'][0];
+            // === 2) Hvis ingen caption/IMG fundet, falder vi tilbage til første IMG i content ===
+            if (!$img_src) {
+                $img_tag_regex = '#<img\b[^>]*\bsrc\s*=\s*([\'"])(?P<src>[^\'"]+)\1[^>]*>#i';
+                if (!preg_match($img_tag_regex, $content, $m, PREG_OFFSET_CAPTURE)) {
+                    // msg(sprintf('[nns] Post %d: intet billede i HTML.', $post_id));
+                    continue;
+                }
+
+                $full_tag      = $m[0][0];
+                $full_tag_pos  = $m[0][1];
+                $img_src       = $m['src'][0];
+
+                // I fallback-tilfældet fjerner vi kun selve IMG-tagget
+                $remove_start = $full_tag_pos;
+                $remove_len   = strlen($full_tag);
+            }
+
+            // Hvis vi stadig ikke har et billede, så videre
+            if (!$img_src) {
+                continue;
+            }
 
             // Kør din eksisterende URL-normalisering / remapping
             $normalized = nns_normalize_image_url($img_src);
@@ -399,20 +457,31 @@ function nns_set_featured_from_first_img_all($post_type = 'post', $batch_size = 
                     set_post_thumbnail($post_id, $attachment_id);
                 }
 
-                // Fjern kun den FØRSTE forekomst af netop dette img-tag fra content
-                // (brug position fra regex for at undgå at fjerne senere identiske tags)
-                $before = substr($content, 0, $full_tag_pos);
-                $after  = substr($content, $full_tag_pos + strlen($full_tag));
-                $new_content = $before . $after;
+                // Hvis vi har en billedtekst fra caption, gem den i custom feltet 'featured_caption'
+                if (!empty($caption_text)) {
+                    update_post_meta($post_id, 'featured_caption', $caption_text);
+                }
 
-                // Opdater indlæggets indhold
-                wp_update_post([
-                    'ID'           => $post_id,
-                    'post_content' => $new_content,
-                ]);
+                // Fjern den del af content, vi har markeret (caption-blok eller kun IMG)
+                if ($remove_start !== null && $remove_len !== null) {
+                    $before      = substr($content, 0, $remove_start);
+                    $after       = substr($content, $remove_start + $remove_len);
+                    $new_content = $before . $after;
+
+                    // Opdater indlæggets indhold
+                    wp_update_post([
+                        'ID'           => $post_id,
+                        'post_content' => $new_content,
+                    ]);
+                }
 
                 $total_updated++;
-                msg(sprintf('[nns] Post %d: Thumbnail sat til attachment %d og første <img> fjernet.', $post_id, $attachment_id));
+                msg(sprintf(
+                    '[nns] Post %d: Thumbnail sat til attachment %d, billedet fjernet%s.',
+                    $post_id,
+                    $attachment_id,
+                    $caption_text ? ' og featured_caption opdateret' : ''
+                ));
             } else {
                 msg(sprintf('[nns] Post %d: Kunne ikke mappe/importere billede (%s).', $post_id, esc_url($mapped)));
             }
@@ -424,6 +493,7 @@ function nns_set_featured_from_first_img_all($post_type = 'post', $batch_size = 
 
     msg(sprintf('[nns] Færdig. Opdaterede %d posts.', $total_updated));
 }
+
 
 /** Admin-utility */
 if ( ! is_user_logged_in() || ! current_user_can('manage_options') ) {
@@ -635,6 +705,52 @@ function nns_run_simple_permalink_and_html_link_fix($post_types = ['post','page'
     }
 }
 
+/**
+ * Gennemløb alle brugere og sæt display_name = "Fornavn Efternavn"
+ */
+function nns_step_update_all_display_names($batch_size = 200) {
+    $page = 1;
+    $updated = 0;
+
+    do {
+        $args = [
+            'number' => $batch_size,
+            'paged'  => $page,
+            'fields' => ['ID', 'display_name'],
+        ];
+
+        $users = get_users($args);
+        if (empty($users)) break;
+
+        foreach ($users as $user) {
+            $user_id = $user->ID;
+            $first   = get_user_meta($user_id, 'first_name', true);
+            $last    = get_user_meta($user_id, 'last_name', true);
+
+            // Spring over hvis ikke noget navn
+            if (empty($first) && empty($last)) continue;
+
+            $new_display = trim($first . ' ' . $last);
+
+            // Spring over hvis allerede sat korrekt
+            if ($user->display_name === $new_display) continue;
+
+            // Opdater brugeren
+            wp_update_user([
+                'ID'           => $user_id,
+                'display_name' => $new_display,
+            ]);
+
+            $updated++;
+        }
+
+        $page++;
+    } while (count($users) === $batch_size);
+
+    error_log("[nns] STEP: Display_name sat for {$updated} brugere.");
+}
+
+
 
 /* Step 1 - From list to categories */
 if ( isset($_GET["step"]) && $_GET["step"] == "1" ) {
@@ -659,6 +775,12 @@ if ( isset($_GET["step"]) && $_GET["step"] == "3" ) {
     msg('Kørsel fuldført (step 3).');
 }
 
+/* Step 4 - Set displayname of all users */
+if ( isset($_GET["step"]) && $_GET["step"] == "4" ) {
+    nns_step_update_all_display_names();
+    msg('Kørsel fuldført (step 4).');
+}
+
 
 /* Step 0 - Remap første billede til WP (opdater indhold + evt. featured) */
 if ( isset($_GET["step"]) && $_GET["step"] == "0" ) {
@@ -667,3 +789,12 @@ if ( isset($_GET["step"]) && $_GET["step"] == "0" ) {
     msg('Kørsel fuldført (step 0).');
 }
 
+
+/*
+
+Changes to site
+
+1. Brugers Vis navn offentligt som skal ændres til navn
+2. 
+
+*/

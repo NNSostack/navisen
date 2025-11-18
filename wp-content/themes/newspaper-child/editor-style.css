@@ -1,0 +1,57 @@
+﻿/*
+ Theme Name: Newspaper Child
+ Theme URI: https://example.com/
+ Description: Child theme for Newspaper by tagDiv with a custom block example (fixed API).
+ Author: Nikolaj Sostack
+ Author URI: https://example.com/
+ Template: Newspaper
+ Version: 1.1.2
+ License: GNU General Public License v2 or later
+ License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ Text Domain: newspaper-child
+*/
+
+
+
+/* Editor styles for site */
+
+.factboxright ul, .factboxleft ul, .factboxright p, .factboxleft p {
+    color: white !important;
+}
+
+.factboxleft {
+    border-top: solid;
+    border-top-color: #474747;
+    border-top-width: 10px;
+    float: left;
+    width: 50%;
+    background-color: #99230a;
+    color: white !important;
+    padding: 10px;
+    margin-right: 10px!important;
+    font-family: Arial;
+    font-size: 12px;
+}
+
+.factboxleft a {
+    color: #808080!important;
+}
+
+.factboxright a {
+    color: #808080!important;
+}
+
+.factboxright {
+    border-top: solid;
+    border-top-color: #474747;
+    border-top-width: 10px;
+    float: right;
+    width: 50%;
+    background-color: #99230a;
+    color: white!important;
+    padding: 10px;
+    margin-left: 10px;
+    font-family: Arial;
+    font-size: 12px;
+    line-height: 20px;
+}

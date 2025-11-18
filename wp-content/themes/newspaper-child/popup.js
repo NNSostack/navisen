@@ -69,10 +69,25 @@
             dropdown.appendChild(item);
         });
 
+        let item = document.createElement('div');
+        item.className = 'category-dropdown-item popup-seperator';
+        item.textContent = "Rediger nyhed";
+
+        item.addEventListener('click', function (e) {
+            e.stopPropagation();
+            removeCategoryDropdown();
+            if (typeof onSelect === 'function') {
+                onSelect("edit");
+            }
+        });
+
+        dropdown.appendChild(item);
+
+
         if (createEditListItem) {
             const item = document.createElement('div');
             item.className = 'category-dropdown-item';
-            item.textContent = "Rediger lister";
+            item.textContent = "Rediger nyheds-lister";
 
             item.addEventListener('click', function (e) {
                 e.stopPropagation();
