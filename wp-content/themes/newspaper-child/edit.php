@@ -89,12 +89,13 @@ add_action('pre_get_posts', function($query) {
     }
 });
 
+
 //  Order by menu_order to be able to sort manualley
 add_action('pre_get_posts', function($query) {
     if (is_admin() || !$query->is_category()) {
         return;
     }
-
+    
     // Hent nuværende kategoriobjekt
     $cat = $query->queried_object;
 
@@ -103,7 +104,20 @@ add_action('pre_get_posts', function($query) {
         return;
     }
 
-    if ($query->is_category()) {
+    // --- Find alle underkategorier under "lister"
+    $list_parent = get_term_by('slug', 'lister', 'category');
+    if (!$list_parent) {
+        return;
+    }
+
+    $list_child_ids = get_terms([
+        'taxonomy'   => 'category',
+        'child_of'   => $list_parent->term_id,
+        'hide_empty' => false,
+        'fields'     => 'ids',
+    ]);
+
+    if ($query->is_category($list_child_ids)) {
         $query->set('orderby', 'menu_order date');
         $query->set('order', 'ASC');
     }

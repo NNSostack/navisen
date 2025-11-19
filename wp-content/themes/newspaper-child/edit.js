@@ -76,16 +76,17 @@ jQuery(function ($) {
                         if (cat == null) {
                             //  Edit lists
                             location.href = window.editListsUrl;
+                            return;
                         }
 
                         if (typeof cat == "string") {
                             if (cat == "edit") {
                                 location.href = `/wp-admin/post.php?post=${postId}&action=edit`;
+                                return;
                             }
                         }
 
                         const flexBox = $(parentEl).closest('.jsFlexBox .td_block_inner');
-                        const categoryFrom = $(flexBox).find(".postInfo").attr("data-category-slug");
 
                         console.log('Flyt post til kategori:', postId, cat.slug, remove);
 
