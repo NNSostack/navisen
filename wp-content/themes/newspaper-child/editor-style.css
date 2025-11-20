@@ -55,3 +55,86 @@
     font-size: 12px;
     line-height: 20px;
 }
+
+
+/* Style for image text updated info box*/
+ 
+.my-featured-caption-notice {
+    background: #f0f9ff;
+    border-left: 4px solid #2271b1;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    position: relative;
+    /* 🔥 Bounce animation når boksen dukker op */
+    animation: my-caption-bounce 0.7s ease-out;
+}
+
+.my-featured-caption-notice .info {
+    margin-left: 15px;
+}
+
+.my-featured-caption-notice::before {
+    content: "✨";
+    position: absolute;
+    left: 8px;
+    top: 10px;
+    font-size: 16px;
+}
+
+.my-featured-caption-notice code {
+    background: #e2eef7;
+    padding: 1px 4px;
+    border-radius: 3px;
+}
+
+/* Highlight rundt om featured image-boksen */
+.my-featured-caption-highlight {
+    box-shadow: 0 0 0 3px #2271b1;
+    animation: my-caption-pulse 1.2s ease-out 0s 3;
+}
+
+/* 🔁 Bounce keyframes til selve boksen */
+@keyframes my-caption-bounce {
+    0% {
+        transform: scale(0.9) translateY(-8px);
+        opacity: 0;
+    }
+
+    40% {
+        transform: scale(1.03) translateY(0);
+        opacity: 1;
+    }
+
+    70% {
+        transform: scale(0.98) translateY(-3px);
+    }
+
+    100% {
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Pulsende highlight omkring billed-boksen */
+@keyframes my-caption-pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(34, 113, 177, 0.8);
+    }
+
+    50% {
+        box-shadow: 0 0 0 6px rgba(34, 113, 177, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(34, 113, 177, 0);
+    }
+}
+
+/* (valgfrit) lidt hensyn til brugere med reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .my-featured-caption-notice,
+    .my-featured-caption-highlight {
+        animation: none !important;
+    }
+}

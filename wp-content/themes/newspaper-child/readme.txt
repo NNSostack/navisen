@@ -14,3 +14,6 @@ Install:
 
 1.	Classic Editor plugin
 2.  Add Custom Field under udvalgt billede (single External Shortcode - [featured_caption tag="figcaption" class="featured_caption"])
+3.  Plugin: Regenerér miniaturebilleder
+	Regenerér miniaturebilleder for en eller flere af dine billedoverførsler. Nyttigt når du ændrer deres størrelse eller tema.
+	Version 3.1.6 | Af Alex Mills (Viper007Bond) | Vis detaljer
