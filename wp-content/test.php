@@ -226,61 +226,120 @@ function nns_find_attachment_by_attached_file($rel_path) {
  * Returnerer attachment_id eller 0.
  */
 function nns_try_import_local_mirror_and_attach($image_url, $post_id) {
+
+    msg(sprintf('[nns] Post %d: Starter import for URL: %s', $post_id, $image_url));
+
     $path = wp_parse_url($image_url, PHP_URL_PATH);
-    if ( ! $path ) return 0;
+    if ( ! $path ) {
+        msg(sprintf('[nns] Post %d: Ingen path fundet i URL – returnerer 0.', $post_id));
+        return 0;
+    }
 
     $path_clean = nns_strip_wp_size_suffix($path);
 
-    $docroot   = rtrim( $_SERVER['DOCUMENT_ROOT'], DIRECTORY_SEPARATOR );
+    $docroot   = rtrim($_SERVER['DOCUMENT_ROOT'], DIRECTORY_SEPARATOR);
     $local_abs = $docroot . $path_clean;
+
+    msg(sprintf('[nns] Post %d: Forsøger lokal sti: %s', $post_id, $local_abs));
 
     if ( ! file_exists($local_abs) ) {
         $local_abs = $docroot . rawurldecode($path_clean);
+        msg(sprintf('[nns] Post %d: Forsøger rawurldecode sti: %s', $post_id, $local_abs));
     }
+
     if ( ! file_exists($local_abs) ) {
         $fallback_abs = $docroot . $path;
+        msg(sprintf('[nns] Post %d: Forsøger fallback sti: %s', $post_id, $fallback_abs));
+
         if ( ! file_exists($fallback_abs) ) {
             $fallback_abs = $docroot . rawurldecode($path);
+            msg(sprintf('[nns] Post %d: Forsøger fallback rawurldecode sti: %s', $post_id, $fallback_abs));
         }
+
         if ( file_exists($fallback_abs) ) {
             $local_abs = $fallback_abs;
+            msg(sprintf('[nns] Post %d: Fandt fallback fil: %s', $post_id, $local_abs));
         }
     }
 
+    // === NYT: YouTube-import hvis fil ikke kan findes lokalt ===
     if ( ! file_exists($local_abs) || ! is_readable($local_abs) ) {
+
+        msg(sprintf('[nns] Post %d: Ingen lokal fil fundet. Tjekker om det er YouTube…', $post_id));
+
+        $host = wp_parse_url($image_url, PHP_URL_HOST);
+
+        if (
+            $host &&
+            (
+                stripos($host, 'youtube.com')     !== false ||
+                stripos($host, 'youtu.be')        !== false ||
+                stripos($host, 'img.youtube.com') !== false
+            )
+        ) {
+            msg(sprintf('[nns] Post %d: URL %s peger på YouTube → forsøger hentning af thumbnail.', $post_id, $image_url));
+            $yt = nns_import_youtube_thumb_and_attach($image_url, $post_id);
+
+            if ($yt) {
+                msg(sprintf('[nns] Post %d: YouTube-thumbnail hentet og attached som %d.', $post_id, $yt));
+            } else {
+                msg(sprintf('[nns] Post %d: Kunne ikke hente YouTube-thumbnail.', $post_id));
+            }
+
+            return $yt;
+        }
+
+        // Ikke YouTube → stop
+        msg(sprintf('[nns] Post %d: Ikke YouTube og ingen lokal fil – returnerer 0.', $post_id));
         return 0;
     }
+
+    msg(sprintf('[nns] Post %d: Lokal fil fundet: %s', $post_id, $local_abs));
 
     $uploads = wp_get_upload_dir();
     if ( empty($uploads['basedir']) || empty($uploads['baseurl']) ) {
+        msg(sprintf('[nns] Post %d: Upload dir ikke tilgængelig – returnerer 0.', $post_id));
         return 0;
     }
 
-    $rel_from_root = ltrim( str_replace('\\', '/', $path_clean), '/' );
+    $rel_from_root = ltrim(str_replace('\\', '/', $path_clean), '/');
     $rel_from_root = trim($rel_from_root, "/ \t\n\r\0\x0B");
 
-    $dest_abs  = trailingslashit($uploads['basedir']) . $rel_from_root;
-    $dest_dir  = dirname($dest_abs);
-    $dest_url  = trailingslashit($uploads['baseurl']) . $rel_from_root;
+    $dest_abs = trailingslashit($uploads['basedir']) . $rel_from_root;
+    $dest_dir = dirname($dest_abs);
+    $dest_url = trailingslashit($uploads['baseurl']) . $rel_from_root;
+
+    msg(sprintf('[nns] Post %d: Destination: %s', $post_id, $dest_abs));
 
     if ( ! wp_mkdir_p($dest_dir) ) {
+        msg(sprintf('[nns] Post %d: Kunne ikke oprette mappe: %s', $post_id, $dest_dir));
         return 0;
     }
+
     if ( ! file_exists($dest_abs) ) {
         if ( ! copy($local_abs, $dest_abs) ) {
+            msg(sprintf('[nns] Post %d: Fejl: kunne ikke kopiere %s → %s', $post_id, $local_abs, $dest_abs));
             return 0;
+        } else {
+            msg(sprintf('[nns] Post %d: Kopierede fil til uploads.', $post_id));
         }
+    } else {
+        msg(sprintf('[nns] Post %d: Fil findes allerede i uploads.', $post_id));
     }
 
-    // Undgå at oprette duplikat-attachment hvis der allerede findes et for denne sti
-    $rel_for_meta = ltrim( str_replace( trailingslashit($uploads['basedir']), '', $dest_abs ), '/' );
-    $existing = nns_find_attachment_by_attached_file( $rel_for_meta );
-    if ( $existing ) {
-        return (int) $existing;
+    // Tjek om der allerede findes attachment
+    $rel_for_meta = ltrim(str_replace(trailingslashit($uploads['basedir']), '', $dest_abs), '/');
+    $existing = nns_find_attachment_by_attached_file($rel_for_meta);
+
+    if ($existing) {
+        msg(sprintf('[nns] Post %d: Attachment eksisterer allerede (%d).', $post_id, $existing));
+        return (int)$existing;
     }
 
-    $filetype = wp_check_filetype( basename($dest_abs), null );
-    if ( empty($filetype['type']) && function_exists('exif_imagetype') ) {
+    $filetype = wp_check_filetype(basename($dest_abs), null);
+    if (empty($filetype['type']) && function_exists('exif_imagetype')) {
+        msg(sprintf('[nns] Post %d: Filetype ukendt – forsøger exif.', $post_id));
+
         $types = [
             IMAGETYPE_GIF  => 'image/gif',
             IMAGETYPE_JPEG => 'image/jpeg',
@@ -293,15 +352,21 @@ function nns_try_import_local_mirror_and_attach($image_url, $post_id) {
             IMAGETYPE_HEIC => 'image/heic',
         ];
         $it = @exif_imagetype($dest_abs);
-        if ( $it && isset($types[$it]) ) {
+        if ($it && isset($types[$it])) {
             $filetype['type'] = $types[$it];
+            msg(sprintf('[nns] Post %d: Filetype bestemt til %s', $post_id, $filetype['type']));
         }
     }
-    if ( empty($filetype['type']) ) {
+
+    if (empty($filetype['type'])) {
+        msg(sprintf('[nns] Post %d: Filetype stadig ukendt – fallback image/jpeg.', $post_id));
         $filetype['type'] = 'image/jpeg';
     }
 
-    $attach_title = sanitize_text_field( pathinfo($dest_abs, PATHINFO_FILENAME) );
+    $attach_title = sanitize_text_field(pathinfo($dest_abs, PATHINFO_FILENAME));
+
+    msg(sprintf('[nns] Post %d: Opretter attachment: %s', $post_id, $attach_title));
+
     $attachment = [
         'post_mime_type' => $filetype['type'],
         'post_title'     => $attach_title,
@@ -311,7 +376,8 @@ function nns_try_import_local_mirror_and_attach($image_url, $post_id) {
     ];
 
     $attach_id = wp_insert_attachment($attachment, $dest_abs, $post_id);
-    if ( is_wp_error($attach_id) || ! $attach_id ) {
+    if (is_wp_error($attach_id) || !$attach_id) {
+        msg(sprintf('[nns] Post %d: Fejl ved wp_insert_attachment.', $post_id));
         return 0;
     }
 
@@ -319,12 +385,20 @@ function nns_try_import_local_mirror_and_attach($image_url, $post_id) {
 
     require_once ABSPATH . 'wp-admin/includes/image.php';
     $attach_data = wp_generate_attachment_metadata($attach_id, $dest_abs);
+
     if ( ! is_wp_error($attach_data) && ! empty($attach_data) ) {
         wp_update_attachment_metadata($attach_id, $attach_data);
+        msg(sprintf('[nns] Post %d: Metadata genereret og opdateret for attachment %d.', $post_id, $attach_id));
+    } else {
+        msg(sprintf('[nns] Post %d: Kunne ikke generere metadata for %d.', $post_id, $attach_id));
     }
 
-    return (int) $attach_id;
+    msg(sprintf('[nns] Post %d: Import færdig – attachment ID %d.', $post_id, $attach_id));
+
+    return (int)$attach_id;
 }
+
+
 
 /**
  * STEP 2 (eksisterende): gennemgå indlæg uden thumbnail og sæt udvalgt billede fra første img,
@@ -368,6 +442,83 @@ function nns_set_featured_from_first_img_all($post_type = 'post', $batch_size = 
         }
 
         foreach ( $q->posts as $post_id ) {
+
+            /**
+             * 0) Håndtering af iframe → udvalgt video
+             * -------------------------------------------------
+             * Hvis iframe-feltet har indhold:
+             *  - Ekstrahér video-URL (fra <iframe src="..."> eller ren tekst)
+             *  - Gem i temaets "featured video"-felt
+             *  - Tøm iframe-feltet
+             *  - Slet evt. udvalgt billede
+             *  - Gå videre til næste post (ingen auto-thumbnail)
+             */
+
+            // Tilpas disse to nøgler til din installation:
+            $iframe_field_key      = 'iframe';              // eksisterende custom felt med iframe/embed
+            $theme_video_field_key = 'td_post_video';  // TODO: skift til temaets "udvalgt video"-felt
+
+            $iframe_value = get_post_meta($post_id, $iframe_field_key, true);
+
+            if ( ! empty($iframe_value) ) {
+                $video_url = null;
+
+                // Prøv først at finde src="" i et iframe-tag
+                if (preg_match('#<iframe[^>]+src=["\']([^"\']+)["\'][^>]*>#i', $iframe_value, $m_iframe)) {
+                    $video_url = $m_iframe[1];
+                } else {
+                    // Hvis der ikke er et iframe-tag, antag at feltet indeholder en URL eller tekst
+                    $video_url = trim( wp_strip_all_tags( $iframe_value ) );
+                }
+
+                if ( ! empty($video_url) ) {
+
+                    // Slet udvalgt billede, hvis der er et
+                    if (has_post_thumbnail($post_id)) {
+                        delete_post_thumbnail($post_id);
+                        msg(sprintf('[nns] Post %d: Slettede udvalgt billede pga. iframe-video.', $post_id));
+                    }
+
+                    // Sæt post format til VIDEO
+                    set_post_format($post_id, 'video');
+
+                    // Gem video i Newspaper temaets video-meta
+                    update_post_meta($post_id, $theme_video_field_key, [
+                        'td_video' => esc_url_raw($video_url)
+                    ]);
+
+                    $video_id = nns_extract_youtube_id($video_url);
+
+                    if ($video_id) {
+                        // Importer den som attachment
+                        $attachment_id = nns_try_import_local_mirror_and_attach($video_url, $post_id);
+                        msg("[nns] Post $post_id: Henter thumb: ($video_url), ($attachment_id)");
+
+                        if ($attachment_id) {
+                            set_post_thumbnail($post_id, $attachment_id);
+                            msg("[nns] Post $post_id: Udvalgt billede sat ud fra videoen ($thumb_url).");
+                        }
+                    }
+
+                    msg(sprintf(
+                        '[nns] Post %d: Flyttede iframe-video til meta "%s" (%s).',
+                        $post_id,
+                        $theme_video_field_key,
+                        $video_url
+                    ));
+                } else {
+                    msg(sprintf(
+                        '[nns] Post %d: iframe-felt havde indhold, men kunne ikke finde en video-URL.',
+                        $post_id
+                    ));
+                }
+
+                // Tøm iframe-feltet (du kan bytte til update_post_meta(..., "") hvis du hellere vil gemme empty value)
+                delete_post_meta($post_id, $iframe_field_key);
+
+                // Spring resten af billed-logikken over for denne post
+                continue;
+            }
 
             // Spring over hvis vi ikke må overskrive og der allerede er thumbnail
             if (!$overwrite_existing && has_post_thumbnail($post_id)) {
@@ -493,6 +644,7 @@ function nns_set_featured_from_first_img_all($post_type = 'post', $batch_size = 
 
     msg(sprintf('[nns] Færdig. Opdaterede %d posts.', $total_updated));
 }
+
 
 
 /** Admin-utility */
@@ -749,6 +901,154 @@ function nns_step_update_all_display_names($batch_size = 200) {
 
     error_log("[nns] STEP: Display_name sat for {$updated} brugere.");
 }
+
+function nns_extract_youtube_id($url) {
+    if (preg_match('#(?:v=|youtu\.be/)([A-Za-z0-9_-]+)#', $url, $m)) {
+        return $m[1];
+    }
+    return null;
+}
+
+function nns_import_youtube_thumb_and_attach($youtube_url, $post_id) {
+
+    msg(sprintf('[nns] Post %d: YouTube-import startet for URL: %s', $post_id, $youtube_url));
+
+    $video_id = nns_extract_youtube_id($youtube_url);
+    if ( ! $video_id ) {
+        msg(sprintf('[nns] Post %d: Kunne ikke finde YouTube video-ID.', $post_id));
+        return 0;
+    }
+
+    msg(sprintf('[nns] Post %d: Fundet YouTube video-ID: %s', $post_id, $video_id));
+
+    $uploads = wp_get_upload_dir();
+    if ( empty($uploads['basedir']) || empty($uploads['baseurl']) ) {
+        msg(sprintf('[nns] Post %d: Upload folders ikke tilgængelige.', $post_id));
+        return 0;
+    }
+
+    // Kandidater i prioriteret rækkefølge
+    $candidates = [
+        "https://img.youtube.com/vi/{$video_id}/maxresdefault.jpg",
+        "https://img.youtube.com/vi/{$video_id}/hqdefault.jpg",
+        "https://img.youtube.com/vi/{$video_id}/mqdefault.jpg",
+    ];
+
+    if ( ! function_exists('download_url') ) {
+        require_once ABSPATH . 'wp-admin/includes/file.php';
+    }
+
+    $tmp_file   = '';
+    $thumb_used = '';
+
+    msg(sprintf('[nns] Post %d: Forsøger at hente thumbnail fra YouTube…', $post_id));
+
+    foreach ($candidates as $thumb_url) {
+
+        msg(sprintf('[nns] Post %d: Forsøger download af: %s', $post_id, $thumb_url));
+
+        $tmp = download_url($thumb_url);
+
+        if (is_wp_error($tmp)) {
+            msg(sprintf('[nns] Post %d: Fejl ved download: %s', $post_id, $tmp->get_error_message()));
+            continue;
+        }
+
+        msg(sprintf('[nns] Post %d: Download OK → %s', $post_id, $thumb_url));
+
+        $tmp_file   = $tmp;
+        $thumb_used = $thumb_url;
+        break;
+    }
+
+    if ( ! $tmp_file ) {
+        msg(sprintf('[nns] Post %d: Ingen thumbnails kunne downloades.', $post_id));
+        return 0;
+    }
+
+    // Ind i uploads/youtube-thumbs/
+    $subdir       = 'youtube-thumbs';
+    $filename_src = basename(wp_parse_url($thumb_used, PHP_URL_PATH));
+    $filename     = 'yt-' . $video_id . '-' . $filename_src;
+
+    $dest_dir = trailingslashit($uploads['basedir']) . $subdir;
+
+    if ( ! wp_mkdir_p($dest_dir) ) {
+        msg(sprintf('[nns] Post %d: Kunne ikke oprette mappe: %s', $post_id, $dest_dir));
+        @unlink($tmp_file);
+        return 0;
+    }
+
+    $dest_abs     = trailingslashit($dest_dir) . $filename;
+    $rel_for_meta = trailingslashit($subdir) . $filename;
+    $dest_url     = trailingslashit($uploads['baseurl']) . $rel_for_meta;
+
+    msg(sprintf('[nns] Post %d: Thumbnail gemmes som: %s', $post_id, $dest_abs));
+
+    // Tjek om der allerede ligger en attachment med samme fil
+    if (function_exists('nns_find_attachment_by_attached_file')) {
+        $existing = nns_find_attachment_by_attached_file($rel_for_meta);
+        if ($existing) {
+            msg(sprintf('[nns] Post %d: Attachment findes allerede (%d).', $post_id, $existing));
+            @unlink($tmp_file);
+            return (int) $existing;
+        }
+    }
+
+    // Flyt temp-filen
+    if ( ! @rename($tmp_file, $dest_abs) ) {
+        msg(sprintf('[nns] Post %d: Fejl: kunne ikke flytte temp-file til %s', $post_id, $dest_abs));
+        @unlink($tmp_file);
+        return 0;
+    }
+
+    msg(sprintf('[nns] Post %d: Thumbnail flyttet til uploads.', $post_id));
+
+    // MIME-type
+    $filetype = wp_check_filetype($filename, null);
+    if ( empty($filetype['type']) ) {
+        $filetype['type'] = 'image/jpeg';
+        msg(sprintf('[nns] Post %d: Ukendt MIME – fallback til image/jpeg.', $post_id));
+    }
+
+    // Attachment data
+    $attachment = [
+        'post_mime_type' => $filetype['type'],
+        'post_title'     => sanitize_text_field('YouTube thumb ' . $video_id),
+        'post_content'   => '',
+        'post_status'    => 'inherit',
+        'guid'           => $dest_url,
+    ];
+
+    msg(sprintf('[nns] Post %d: Indsætter attachment…', $post_id));
+
+    // Opret attachment
+    $attach_id = wp_insert_attachment($attachment, $dest_abs, $post_id);
+    if ( is_wp_error($attach_id) || ! $attach_id ) {
+        msg(sprintf('[nns] Post %d: wp_insert_attachment fejlede.', $post_id));
+        return 0;
+    }
+
+    msg(sprintf('[nns] Post %d: Attachment oprettet med ID %d', $post_id, $attach_id));
+
+    update_attached_file($attach_id, $rel_for_meta);
+
+    require_once ABSPATH . 'wp-admin/includes/image.php';
+    $attach_data = wp_generate_attachment_metadata($attach_id, $dest_abs);
+
+    if ( ! is_wp_error($attach_data) && ! empty($attach_data) ) {
+        wp_update_attachment_metadata($attach_id, $attach_data);
+        msg(sprintf('[nns] Post %d: Metadata genereret & opdateret for %d', $post_id, $attach_id));
+    } else {
+        msg(sprintf('[nns] Post %d: Kunne ikke generere metadata for %d', $post_id, $attach_id));
+    }
+
+    msg(sprintf('[nns] Post %d: YouTube thumbnail import afsluttet. Attachment ID: %d', $post_id, $attach_id));
+
+    return (int) $attach_id;
+}
+
+
 
 
 

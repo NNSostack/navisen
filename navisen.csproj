@@ -72,6 +72,7 @@
     <Content Include="wp-content\themes\newspaper-child\dragdrop.js" />
     <Content Include="wp-content\themes\newspaper-child\edit.php" />
     <Content Include="wp-content\themes\newspaper-child\actions.php" />
+    <Content Include="wp-content\themes\newspaper-child\js\featured-caption-live-sync.js" />
     <Content Include="wp-content\themes\newspaper-child\js\factbox-faktaboks.js" />
     <Content Include="wp-content\themes\newspaper-child\popup.js" />
     <Content Include="wp-content\themes\newspaper-child\helper.js" />
