@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+This file is used by the publish/package process of your Web project. You can customize the behavior of this process
+by editing this MSBuild file. In order to learn more about this please visit https://go.microsoft.com/fwlink/?LinkID=208121. 
+-->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <TimeStampOfAssociatedLegacyPublishXmlFile />
+    <EncryptedPassword>AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAxwnb2WxTy0yJRftvZ99NdgAAAAACAAAAAAAQZgAAAAEAACAAAADSeSQOhiy6OeTLj8GTAutRj7KCepITwI7L26YB9uZKEQAAAAAOgAAAAAIAACAAAAAraUWrvQaVN5ZIB0r96mLDOiXHHDribDeknCrglgMD0CAAAAAYklC/g0NzKFz12Vblu0YvGX8FccM1Or/fiM7OTjD+q0AAAACIGMyK3cn4nhl6WyTQPNul2zYJ3yTlhptBDbriolM0JpJkW4dA8cicPJVgqjcs5DXSzGYD+7R8gL/ZUgjINR/v</EncryptedPassword>
+    <_PublishTargetUrl>ftp://linux235.unoeuro.com/navisen-test/</_PublishTargetUrl>
+  </PropertyGroup>
+  <ItemGroup>
+    <File Include="Migration/HowTo.txt">
+      <publishTime>01/01/0001 00:00:00</publishTime>
+    </File>
+    <File Include="Migration/migration.php">
+      <publishTime>01/01/0001 00:00:00</publishTime>
+    </File>
+    <File Include="Migration/themeforest-2EnVD4MZ-newspaper-wordpress-theme.zip">
+      <publishTime>01/01/0001 00:00:00</publishTime>
+    </File>
+    <File Include="wp-content/themes/newspaper-child/actions.php">
+      <publishTime>11/07/2025 21:01:17</publishTime>
+    </File>
+    <File Include="wp-content/themes/newspaper-child/dragdrop.js">
+      <publishTime>11/07/2025 17:51:33</publishTime>
+    </File>
+    <File Include="wp-content/themes/newspaper-child/edit.css">
+      <publishTime>11/20/2025 14:03:52</publishTime>
+    </File>
+    <File Include="wp-content/themes/newspaper-child/edit.js">
+      <publishTime>11/18/2025 11:02:29</publishTime>
+    </File>
+    <File Include="wp-content/themes/newspaper-child/edit.php">
+      <publishTime>11/18/2025 14:45:30</publishTime>
+    </File>
+    <File Include="wp-content/themes/newspaper-child/editor-style.css">
+      <publishTime>11/20/2025 14:05:12</publishTime>
+    </File>
+    <File Include="wp-content/themes/newspaper-child/functions.js">
+      <publishTime>11/05/2025 11:12:46</publishTime>
+    </File>
+    <File Include="wp-content/themes/newspaper-child/functions.php">
+      <publishTime>12/08/2025 12:13:50</publishTime>
+    </File>
+    <File Include="wp-content/themes/newspaper-child/helper.js">
+      <publishTime>11/06/2025 12:40:05</publishTime>
+    </File>
+    <File Include="wp-content/themes/newspaper-child/js/factbox-faktaboks.js">
+      <publishTime>11/17/2025 15:09:08</publishTime>
+    </File>
+    <File Include="wp-content/themes/newspaper-child/js/featured-caption-live-sync.js">
+      <publishTime>11/20/2025 14:18:04</publishTime>
+    </File>
+    <File Include="wp-content/themes/newspaper-child/popup.js">
+      <publishTime>11/10/2025 13:11:26</publishTime>
+    </File>
+    <File Include="wp-content/themes/newspaper-child/readme.txt">
+      <publishTime>11/20/2025 14:34:21</publishTime>
+    </File>
+    <File Include="wp-content/themes/newspaper-child/style.css">
+      <publishTime>11/17/2025 14:57:30</publishTime>
+    </File>
+  </ItemGroup>
+</Project>

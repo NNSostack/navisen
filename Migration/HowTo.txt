@@ -1,0 +1,74 @@
+﻿Download newest theme (Newspaper - News & WooCommerce WordPress Theme) here: https://themeforest.net/downloads (brug gmail som login)
+Install theme
+	Install / Activate plugins
+*** Backup ***
+
+Opret kategorier - /wp-admin/edit-tags.php?taxonomy=category
+	3 - Lister
+		Venstre (4659 - Check Id)
+		Højre (4660 - Check Id)
+		Featured (4661 - Check Id)	
+
+/Migration/migration.php?step=1
+	Check at der er kommet indlæg på de nye kategorier
+
+Installer Plugin - classic editor
+
+/Migration/migration.php?step=2
+	Kør flere gange hvis den timer ud
+/Migration/migration.php?step=3
+	https://navisen-test.online-it-support.dk/wp-admin/options-permalink.php - Set Permalink manual to fix it. Back and forth
+/Migration/migration.php?step=4
+
+Lav ny side: Forside
+Kopier HTML indhold fra Homepage til ny Forside
+Vælg ny forside: /wp-admin/options-reading.php
+Upload child theme
+Aktiver Newspaper Child
+Registrer theme /wp-admin/admin.php?page=td_theme_welcome
+	Du skal nok fjerne et af test sitene for at kunne bruge den (https://navisen.online-it-support.dk/wp-admin/admin.php?page=td_licence_panel)
+	4ce7f7ee-054e-4d88-ab32-572de1e820e0 / nikolaj.sostack@gmail.com
+Sæt Filter på forside (Featured, Højre og venstre)
+Importer template
+	/wp-admin/admin.php?page=tdb_cloud_templates
+		Single Templates -> Single Post Template - Town Talk
+			Gør denne global 
+				(Nok ikke nødvendig - Vælg denne for indlæg ved at klikke ind på indlægget i frontend og klik i top ved siden af Edit with TagDiv..)
+			Hide Caption på billede i toppen af indlæg
+			Indsæt Single External Shortcode under billede -> [featured_caption tag="figcaption" class="featured_caption"]
+		Header Templates -> Header Template - Town Talk 
+			Gør den Global
+			Kopier template fra https://navisen.online-it-support.dk/wp-admin/post.php?post=137343&action=edit
+				I template import kan du trykke på de tre prikker og se indholdet og paste indholdet ind
+			Rediger template med Composer og indsæt logo (download fra https://navisen.online-it-support.dk/wp-content/uploads/2025/11/Topbanner_2014-removebg-preview-1.png)
+		Category Template
+			Gå til en kategori ved at klikke på en kategori i toppen
+				Category Template - Town Talk			
+					Kopier herfra: https://navisen.online-it-support.dk/wp-admin/post.php?post=137335&action=edit
+		404 Templates
+			Gør Global
+		Author Templates
+			Gør Global
+		Date Templates
+			Gør Global
+		Search Templates
+			Gør Global
+		Tag Templates
+			Gør Global
+
+
+Lav ny side 
+	Rediger lister - Kopier fra https://navisen.online-it-support.dk/wp-admin/post.php?post=138422&action=edit
+	edit_lists = true
+	Sæt filters
+
+
+
+
+
+
+
+
+	
+
+

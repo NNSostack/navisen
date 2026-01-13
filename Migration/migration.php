@@ -7,6 +7,13 @@ print_r("Left: " . get_option('navisen_left_list'));
 echo "<br/>";
 print_r("Mid: " . get_option('navisen_mid_list'));
 
+// Hæv eksekveringstid
+set_time_limit(600);
+
+// Hæv memory (virker kun hvis PHP ikke er låst af hosten)
+ini_set('memory_limit', '512M');
+ini_set('max_execution_time', '1200');
+
 function mark_posts_with_category($post_ids_csv, $category_id) {
     $post_ids = array_map('intval', explode(',', $post_ids_csv));
 
@@ -442,6 +449,9 @@ function nns_set_featured_from_first_img_all($post_type = 'post', $batch_size = 
         }
 
         foreach ( $q->posts as $post_id ) {
+            if(isset($_GET["id"]) && $_GET["id"] != $post_id){
+                continue;
+            }
 
             /**
              * 0) Håndtering af iframe → udvalgt video
@@ -473,12 +483,6 @@ function nns_set_featured_from_first_img_all($post_type = 'post', $batch_size = 
 
                 if ( ! empty($video_url) ) {
 
-                    // Slet udvalgt billede, hvis der er et
-                    if (has_post_thumbnail($post_id)) {
-                        delete_post_thumbnail($post_id);
-                        msg(sprintf('[nns] Post %d: Slettede udvalgt billede pga. iframe-video.', $post_id));
-                    }
-
                     // Sæt post format til VIDEO
                     set_post_format($post_id, 'video');
 
@@ -487,16 +491,26 @@ function nns_set_featured_from_first_img_all($post_type = 'post', $batch_size = 
                         'td_video' => esc_url_raw($video_url)
                     ]);
 
-                    $video_id = nns_extract_youtube_id($video_url);
+                    // Behold udvalgt billede
+                    // Slet udvalgt billede, hvis der er et
+                    /*if (has_post_thumbnail($post_id)) {
+                        delete_post_thumbnail($post_id);
+                        msg(sprintf('[nns] Post %d: Slettede udvalgt billede pga. iframe-video.', $post_id));
+                    }*/
 
-                    if ($video_id) {
-                        // Importer den som attachment
-                        $attachment_id = nns_try_import_local_mirror_and_attach($video_url, $post_id);
-                        msg("[nns] Post $post_id: Henter thumb: ($video_url), ($attachment_id)");
+                    //  Opret thumbnail til video
+                    if (!has_post_thumbnail($post_id)) {
+                        $video_id = nns_extract_youtube_id($video_url);
 
-                        if ($attachment_id) {
-                            set_post_thumbnail($post_id, $attachment_id);
-                            msg("[nns] Post $post_id: Udvalgt billede sat ud fra videoen ($thumb_url).");
+                        if ($video_id) {
+                            // Importer den som attachment
+                            $attachment_id = nns_try_import_local_mirror_and_attach($video_url, $post_id);
+                            msg("[nns] Post $post_id: Henter thumb: ($video_url), ($attachment_id)");
+
+                            if ($attachment_id) {
+                                set_post_thumbnail($post_id, $attachment_id);
+                                msg("[nns] Post $post_id: Udvalgt billede sat ud fra videoen ($thumb_url).");
+                            }
                         }
                     }
 
@@ -520,11 +534,12 @@ function nns_set_featured_from_first_img_all($post_type = 'post', $batch_size = 
                 continue;
             }
 
+            //  Hvis der allerede er en thumbnail må vi godt gå videre for at slette billede
             // Spring over hvis vi ikke må overskrive og der allerede er thumbnail
-            if (!$overwrite_existing && has_post_thumbnail($post_id)) {
+            /*if (!$overwrite_existing && has_post_thumbnail($post_id)) {
                 msg(sprintf('[nns] Post %d har allerede thumbnail – springer over.', $post_id));
                 continue;
-            }
+            }*/
 
             $content = get_post_field('post_content', $post_id);
             if (empty($content)) {
@@ -600,19 +615,22 @@ function nns_set_featured_from_first_img_all($post_type = 'post', $batch_size = 
                 if (has_post_thumbnail($post_id)) {
                     if ($overwrite_existing) {
                         set_post_thumbnail($post_id, $attachment_id);
-                    } else {
-                        // Hvis vi ikke må overskrive – så rør ikke indholdet
-                        continue;
+                        // Hvis vi har en billedtekst fra caption, gem den i custom feltet 'featured_caption'
+                        if (!empty($caption_text)) {
+                            update_post_meta($post_id, 'featured_caption', $caption_text);
+                        }
+                    }
+                    else{
+                        $caption_text = '';
                     }
                 } else {
                     set_post_thumbnail($post_id, $attachment_id);
+                    // Hvis vi har en billedtekst fra caption, gem den i custom feltet 'featured_caption'
+                    if (!empty($caption_text)) {
+                        update_post_meta($post_id, 'featured_caption', $caption_text);
+                    }
                 }
-
-                // Hvis vi har en billedtekst fra caption, gem den i custom feltet 'featured_caption'
-                if (!empty($caption_text)) {
-                    update_post_meta($post_id, 'featured_caption', $caption_text);
-                }
-
+                
                 // Fjern den del af content, vi har markeret (caption-blok eller kun IMG)
                 if ($remove_start !== null && $remove_len !== null) {
                     $before      = substr($content, 0, $remove_start);
@@ -1050,13 +1068,11 @@ function nns_import_youtube_thumb_and_attach($youtube_url, $post_id) {
 
 
 
-
-
 /* Step 1 - From list to categories */
 if ( isset($_GET["step"]) && $_GET["step"] == "1" ) {
-    mark_posts_with_category(get_option('navisen_left_list'), 4676);
-    mark_posts_with_category(get_option('navisen_mid_list'), 4675);
-    mark_posts_with_category(get_option('navisen_featured'), 4674);
+    mark_posts_with_category(get_option('navisen_left_list'), 4659);
+    mark_posts_with_category(get_option('navisen_mid_list'), 4660);
+    mark_posts_with_category(get_option('navisen_featured'), 4661);
 }
 
 /* Step 2 - Fix for first image to selected image */
@@ -1094,7 +1110,7 @@ if ( isset($_GET["step"]) && $_GET["step"] == "0" ) {
 
 Changes to site
 
-1. Brugers Vis navn offentligt som skal ændres til navn
+1. Brugers "Vis navn" offentligt som skal ændres til navn
 2. 
 
 */

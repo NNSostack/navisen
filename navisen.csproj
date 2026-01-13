@@ -67,8 +67,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="wp-content\test.php" />
-    <Content Include="wp-content\themes\index.php" />
+    <Content Include="Migration\HowTo.txt" />
+    <Content Include="Migration\migration.php" />
     <Content Include="wp-content\themes\newspaper-child\dragdrop.js" />
     <Content Include="wp-content\themes\newspaper-child\edit.php" />
     <Content Include="wp-content\themes\newspaper-child\actions.php" />
@@ -88,6 +88,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Migration\themeforest-2EnVD4MZ-newspaper-wordpress-theme.zip" />
+    <None Include="Properties\PublishProfiles\Test - nAvisen.pubxml" />
     <None Include="Properties\PublishProfiles\nAvisen.pubxml" />
   </ItemGroup>
   <PropertyGroup>
