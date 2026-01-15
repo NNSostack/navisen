@@ -95,6 +95,11 @@
     animation: my-caption-pulse 1.2s ease-out 0s 3;
 }
 
+.postInfo > .emoji {
+    /* Else something hides it when clicked */
+    opacity: 1!important;
+}  
+
 /* 🔁 Bounce keyframes til selve boksen */
 @keyframes my-caption-bounce {
     0% {
