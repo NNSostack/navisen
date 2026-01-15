@@ -6,6 +6,7 @@ echo "<br/>";
 print_r("Left: " . get_option('navisen_left_list'));
 echo "<br/>";
 print_r("Mid: " . get_option('navisen_mid_list'));
+echo "<br/>";
 
 // Hæv eksekveringstid
 set_time_limit(600);
@@ -428,6 +429,27 @@ function nns_try_import_local_mirror_and_attach($image_url, $post_id) {
  * @param bool   $overwrite_existing true = overskriv eksisterende thumbnails
  */
 function nns_set_featured_from_first_img_all($post_type = 'post', $batch_size = 100, $overwrite_existing = false) {
+    
+// Meta key der markerer at posten er migreret OK
+    $migration_key = '_migration_status';
+
+    // Lokal helper (kun i denne metode): tjek om migreret
+    $is_migrated = function($post_id) use ($migration_key) {
+        $v = get_post_meta($post_id, $migration_key, true);
+        return is_array($v) && !empty($v['ok']);
+    };
+
+    // Lokal helper (kun i denne metode): markér migreret OK
+    $mark_migrated = function($post_id, array $data = []) use ($migration_key) {
+        $payload = array_merge([
+            'ok'      => 1,
+            'ts'      => current_time('mysql'),
+            'post_id' => (int) $post_id,
+        ], $data);
+
+        update_post_meta((int) $post_id, $migration_key, $payload);
+    };
+
     $page = 1;
     $total_updated = 0;
 
@@ -452,6 +474,13 @@ function nns_set_featured_from_first_img_all($post_type = 'post', $batch_size = 
             if(isset($_GET["id"]) && $_GET["id"] != $post_id){
                 continue;
             }
+            
+            // ✅ Skip hvis allerede migreret
+            if ($is_migrated($post_id)) {
+                msg(sprintf('[nns] Post %d: Allerede migreret – skipper.', $post_id));
+                continue;
+            }
+            $total_updated++;
 
             /**
              * 0) Håndtering af iframe → udvalgt video
@@ -513,6 +542,9 @@ function nns_set_featured_from_first_img_all($post_type = 'post', $batch_size = 
                             }
                         }
                     }
+                    else{
+                        nns_reimport_featured_image_like_html_migration($post_id);
+                    }
 
                     msg(sprintf(
                         '[nns] Post %d: Flyttede iframe-video til meta "%s" (%s).',
@@ -520,6 +552,8 @@ function nns_set_featured_from_first_img_all($post_type = 'post', $batch_size = 
                         $theme_video_field_key,
                         $video_url
                     ));
+
+                    $mark_migrated($post_id);
                 } else {
                     msg(sprintf(
                         '[nns] Post %d: iframe-felt havde indhold, men kunne ikke finde en video-URL.',
@@ -536,10 +570,10 @@ function nns_set_featured_from_first_img_all($post_type = 'post', $batch_size = 
 
             //  Hvis der allerede er en thumbnail må vi godt gå videre for at slette billede
             // Spring over hvis vi ikke må overskrive og der allerede er thumbnail
-            /*if (!$overwrite_existing && has_post_thumbnail($post_id)) {
-                msg(sprintf('[nns] Post %d har allerede thumbnail – springer over.', $post_id));
-                continue;
-            }*/
+            if (!$overwrite_existing && has_post_thumbnail($post_id)) {
+                nns_reimport_featured_image_like_html_migration($post_id);
+                $mark_migrated($post_id);
+            }
 
             $content = get_post_field('post_content', $post_id);
             if (empty($content)) {
@@ -644,13 +678,13 @@ function nns_set_featured_from_first_img_all($post_type = 'post', $batch_size = 
                     ]);
                 }
 
-                $total_updated++;
                 msg(sprintf(
                     '[nns] Post %d: Thumbnail sat til attachment %d, billedet fjernet%s.',
                     $post_id,
                     $attachment_id,
                     $caption_text ? ' og featured_caption opdateret' : ''
                 ));
+                $mark_migrated($post_id);
             } else {
                 msg(sprintf('[nns] Post %d: Kunne ikke mappe/importere billede (%s).', $post_id, esc_url($mapped)));
             }
@@ -1065,6 +1099,133 @@ function nns_import_youtube_thumb_and_attach($youtube_url, $post_id) {
 
     return (int) $attach_id;
 }
+
+/**
+ * Re-importer postens nuværende featured image som et NYT attachment
+ * (så WP laver alle sizes/metadata som ved en normal upload),
+ * og sæt det nye attachment som featured.
+ *
+ * Returnerer new_attachment_id eller 0 ved fejl.
+ */
+/**
+ * Re-importer featured image som nyt attachment
+ * (samme flow som HTML -> featured image),
+ * MED logs i hvert trin.
+ */
+function nns_reimport_featured_image_like_html_migration($post_id, $delete_old_attachment = false) {
+
+    $log = function ($message, $data = null) use ($post_id) {
+        $prefix = "[NNS FEATURED MIGRATION][post_id={$post_id}] ";
+        if ($data !== null) {
+            msg($prefix . $message . ' | ' . print_r($data, true));
+        } else {
+            msg($prefix . $message);
+        }
+    };
+
+    $log('START');
+
+    $old_attachment_id = get_post_thumbnail_id($post_id);
+    if (!$old_attachment_id) {
+        $log('STOP – no featured image found');
+        return 0;
+    }
+
+    $log('Old attachment ID found', $old_attachment_id);
+
+    // Load WP helpers
+    require_once ABSPATH . 'wp-admin/includes/media.php';
+    require_once ABSPATH . 'wp-admin/includes/image.php';
+    require_once ABSPATH . 'wp-admin/includes/file.php';
+
+    // Hent URL og lokal fil
+    $url        = wp_get_attachment_url($old_attachment_id);
+    $local_file = get_attached_file($old_attachment_id);
+
+    $log('Attachment URL', $url);
+    $log('Local file path', $local_file);
+
+    $tmp = null;
+
+    // 1) Forsøg download via URL (mest HTML-migration-lignende)
+    if ($url) {
+        $log('Trying download_url()');
+        $tmp = download_url($url);
+
+        if (is_wp_error($tmp)) {
+            $log('download_url FAILED', $tmp->get_error_message());
+            $tmp = null;
+        } else {
+            $log('download_url OK', $tmp);
+        }
+    }
+
+    // 2) Fallback: kopiér lokal fil
+    if (!$tmp && $local_file && file_exists($local_file)) {
+        $log('Trying local file copy fallback');
+
+        $tmp = wp_tempnam(basename($local_file));
+        if ($tmp && copy($local_file, $tmp)) {
+            $log('Local file copied to temp', $tmp);
+        } else {
+            $log('Local file copy FAILED');
+            $tmp = null;
+        }
+    }
+
+    if (!$tmp || !file_exists($tmp)) {
+        $log('STOP – no temp file available');
+        return 0;
+    }
+
+    // Filnavn
+    $filename = $url
+        ? wp_basename(parse_url($url, PHP_URL_PATH))
+        : wp_basename($local_file);
+
+    if (!$filename) {
+        $filename = 'featured-image.jpg';
+    }
+
+    $log('Filename resolved', $filename);
+
+    $file_array = [
+        'name'     => $filename,
+        'tmp_name' => $tmp,
+    ];
+
+    // 3) Opret nyt attachment (HER genereres sizes!)
+    $log('Calling media_handle_sideload()');
+
+    $new_attachment_id = media_handle_sideload($file_array, $post_id);
+
+    if (is_wp_error($new_attachment_id)) {
+        $log('media_handle_sideload FAILED', $new_attachment_id->get_error_message());
+        @unlink($tmp);
+        return 0;
+    }
+
+    $log('New attachment created', $new_attachment_id);
+
+    // 4) Sæt nyt featured image
+    set_post_thumbnail($post_id, $new_attachment_id);
+    $log('Featured image updated');
+
+    // 5) Log genererede sizes (super vigtig debug)
+    $meta = wp_get_attachment_metadata($new_attachment_id);
+    $log('Generated attachment metadata');
+
+    // 6) Valgfrit: slet gammel attachment
+    if ($delete_old_attachment) {
+        $log('Deleting old attachment', $old_attachment_id);
+        wp_delete_attachment($old_attachment_id, true);
+    }
+
+    $log('DONE');
+
+    return (int) $new_attachment_id;
+}
+
 
 
 
