@@ -64,8 +64,12 @@ Lav ny side
 
 Lav ny side
 	Bookmark page - kopier fra https://navisen.online-it-support.dk/wp-admin/post.php?post=137200&action=edit
+	Change Bookmark page url for Bookmark => /bookmark-page/
+		Now it show this page below the current page
 
-
+Ændre By => Af på artikelside
+Ændre Read more => Læs mere på artikelside
+Ændre Local news => Andre nyheder
 
 
 
