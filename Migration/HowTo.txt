@@ -62,6 +62,10 @@ Lav ny side
 	edit_lists = true
 	Sæt filters
 
+Lav ny side
+	Bookmark page - kopier fra https://navisen.online-it-support.dk/wp-admin/post.php?post=137200&action=edit
+
+
 
 
 
