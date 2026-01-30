@@ -1,0 +1,43 @@
+﻿/* Editor styles for site */
+
+.factboxright ul, .factboxleft ul, .factboxright p, .factboxleft p {
+    color: white !important;
+}
+
+.factboxleft {
+    border-top: solid;
+    border-top-color: #474747;
+    border-top-width: 10px;
+    float: left;
+    width: 50%;
+    background-color: #99230a;
+    color: white !important;
+    padding: 10px;
+    margin-right: 10px !important;
+    font-family: Arial;
+    font-size: 12px;
+}
+
+    .factboxleft a {
+        color: #808080 !important;
+    }
+
+.factboxright a {
+    color: #808080 !important;
+}
+
+.factboxright {
+    border-top: solid;
+    border-top-color: #474747;
+    border-top-width: 10px;
+    float: right;
+    width: 50%;
+    background-color: #99230a;
+    color: white !important;
+    padding: 10px;
+    margin-left: 10px !important;
+    font-family: Arial;
+    font-size: 12px;
+    line-height: 20px;
+}
+

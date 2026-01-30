@@ -6,10 +6,10 @@
 // Enqueue parent + child styles
 add_action('wp_enqueue_scripts', function() {
     global $post;
-
+    
     wp_enqueue_style('newspaper-parent', get_template_directory_uri() . '/style.css', [], null);
-    wp_enqueue_style('newspaper-child', get_stylesheet_directory_uri() . '/style.css', ['newspaper-parent'], wp_get_theme()->get('Version'));
-    wp_enqueue_style('newspaper-child', get_stylesheet_directory_uri() . '/editorStyle.css', ['newspaper-parent'], wp_get_theme()->get('Version'));
+    wp_enqueue_style('newspaper-child', get_stylesheet_directory_uri() . '/style.css', ['newspaper-parent'], filemtime(get_stylesheet_directory() .  '/style.css'));
+    wp_enqueue_style('newspaper-faktaboks', get_stylesheet_directory_uri() . '/faktaboks.css', ['newspaper-parent'], filemtime(get_stylesheet_directory() .  '/faktaboks.css'));
     
     wp_enqueue_script('functions.js', get_stylesheet_directory_uri() . '/functions.js', array('jquery'), false);
     wp_enqueue_script('helper.js', get_stylesheet_directory_uri() . '/helper.js');
@@ -104,9 +104,11 @@ if ( is_user_logged_in() ) {
     // Aktiver editor styles
     add_action('after_setup_theme', function() {
         add_theme_support('editor-styles');
-        //add_editor_style('editor-style.css'); // filen skal ligge i roden af dit (child) theme
-        list($url, $ver) = theme_asset_with_cache_busting('/editor-style.css');
-        wp_enqueue_style('editor-style', $url, [], $ver);
+
+        add_editor_style([
+            'editor-style.css',
+            'faktaboks.css',
+        ]);
     });
 
     // Tilføj knap til TinyMCE-toolbar

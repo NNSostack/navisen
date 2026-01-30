@@ -82,6 +82,7 @@
     <Content Include="wp-content\themes\newspaper-child\readme.txt" />
     <Content Include="wp-content\themes\newspaper-child\edit.css" />
     <Content Include="wp-content\themes\newspaper-child\editor-style.css" />
+    <Content Include="wp-content\themes\newspaper-child\faktaboks.css" />
     <Content Include="wp-content\themes\newspaper-child\style.css" />
   </ItemGroup>
   <ItemGroup>
