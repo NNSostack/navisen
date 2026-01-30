@@ -58,37 +58,6 @@ function append_flexbox_config($content) {
 
 }
 
-//  Only get alle-nyheder if not in one of the other lists
-add_action('pre_get_posts', function($query) {
-    if (is_admin() || !$query->is_category()) {
-        return;
-    }
-
-    if ($query->is_category('alle-nyheder')) {
-
-        // --- Find alle underkategorier under "lister"
-        $list_parent = get_term_by('slug', 'lister', 'category');
-        if (!$list_parent) {
-            return;
-        }
-
-        $list_child_ids = get_terms([
-            'taxonomy'   => 'category',
-            'child_of'   => $list_parent->term_id,
-            'hide_empty' => false,
-            'fields'     => 'ids',
-        ]);
-
-        if (is_wp_error($list_child_ids) || empty($list_child_ids)) {
-            return;
-        }
-
-        // --- Udeluk alle posts, der er i disse underkategorier
-        $query->set('category__not_in', $list_child_ids);
-    }
-});
-
-
 //  Order by menu_order to be able to sort manualley
 add_action('pre_get_posts', function($query) {
     if (is_admin() || !$query->is_category()) {
@@ -122,104 +91,7 @@ add_action('pre_get_posts', function($query) {
     }
 });
 
-//  Fjern alle-nyheder og lister og underkategorier 
-add_filter('get_the_terms', function($terms, $post_id, $taxonomy) {
 
-    if (
-        $taxonomy !== 'category' ||
-        is_admin() ||
-        (defined('REST_REQUEST') && REST_REQUEST) ||
-        (defined('DOING_CRON') && DOING_CRON) ||
-        (defined('DOING_AJAX') && DOING_AJAX) ||
-        is_preview() ||
-        empty($terms) ||
-        !is_array($terms)
-    ) {
-        return $terms;
-    }
-
-    $all_news = get_category_by_slug('alle-nyheder');
-    $lister   = get_category_by_slug('lister');
-
-    $all_news_id = $all_news ? (int) $all_news->term_id : 0;
-    $lister_id   = $lister   ? (int) $lister->term_id   : 0;
-
-    // Helper: er term under lister (på ethvert niveau)?
-    $is_under_lister = function(int $term_id) use ($lister_id): bool {
-        if ($lister_id <= 0) return false;
-        if ($term_id === $lister_id) return true; // selve parent
-        $anc = get_ancestors($term_id, 'category');
-        return !empty($anc) && in_array($lister_id, array_map('intval', $anc), true);
-    };
-
-    // 1) Byg et "effektivt" term-sæt hvor lister + listers børn IKKE tæller med
-    // (de skal alligevel aldrig kunne vises)
-    $effective_ids = [];
-    foreach ($terms as $t) {
-        $tid = (int) $t->term_id;
-        if ($is_under_lister($tid)) {
-            continue;
-        }
-        $effective_ids[$tid] = true;
-    }
-    $effective_ids = array_keys($effective_ids);
-
-    // 2) Hvis (effektivt) kun alle-nyheder er valgt -> vis alle-nyheder (og skjul lister-stuff)
-    $force_show_all_news_only = (
-        $all_news_id > 0 &&
-        count($effective_ids) === 1 &&
-        $effective_ids[0] === $all_news_id
-    );
-
-    // 3) Filtrér termer:
-    // - Fjern ALT under lister (altid)
-    // - Fjern alle-nyheder hvis der (effektivt) også er andre kategorier end den
-    $filtered = [];
-    foreach ($terms as $term) {
-        $tid = (int) $term->term_id;
-
-        // ALDRIG vis noget under lister (inkl. lister selv)
-        if ($is_under_lister($tid)) {
-            continue;
-        }
-
-        // alle-nyheder:
-        if ($all_news_id > 0 && $tid === $all_news_id) {
-            // vis den kun hvis den effektivt er alene
-            if ($force_show_all_news_only) {
-                $filtered[] = $term;
-            }
-            // ellers skjul den
-            continue;
-        }
-
-        // andre kategorier beholdes
-        $filtered[] = $term;
-    }
-
-    // 4) Skjul parents hvis et barn er valgt på samme post (i det der er tilbage)
-    if (!empty($filtered)) {
-        $ids = array_values(array_unique(array_map(fn($t) => (int)$t->term_id, $filtered)));
-        $lookup = array_fill_keys($ids, true);
-
-        $hide_parents = [];
-        foreach ($filtered as $t) {
-            $parent_id = isset($t->parent) ? (int)$t->parent : 0;
-            if ($parent_id > 0 && isset($lookup[$parent_id])) {
-                $hide_parents[$parent_id] = true;
-            }
-        }
-
-        if (!empty($hide_parents)) {
-            $filtered = array_values(array_filter($filtered, function($t) use ($hide_parents) {
-                return empty($hide_parents[(int)$t->term_id]);
-            }));
-        }
-    }
-
-    return $filtered;
-
-}, 10, 3);
 
 
 //  Also show future posts
