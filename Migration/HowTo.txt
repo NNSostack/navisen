@@ -1,4 +1,12 @@
-﻿Download newest theme (Newspaper - News & WooCommerce WordPress Theme) here: https://themeforest.net/downloads (brug gmail som login)
+﻿FROM Prod to Dev
+
+Pak filer ud
+Importer database
+
+
+
+
+Download newest theme (Newspaper - News & WooCommerce WordPress Theme) here: https://themeforest.net/downloads (brug gmail som login)
 Install theme
 	Install / Activate plugins
 *** Backup ***

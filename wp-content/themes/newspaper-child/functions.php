@@ -298,3 +298,57 @@ add_action('pre_get_posts', function($query) {
         $query->set('category__not_in', $list_child_ids);
     }
 });
+
+/*
+
+add_filter('pre_http_request', function ($preempt, $parsed_args, $url) {
+
+    $logFile = WP_CONTENT_DIR . '/outgoing-requests.log';
+
+    $data = [
+        'time'    => date('Y-m-d H:i:s'),
+        'type'    => 'before_request',
+        'url'     => $url,
+        'method'  => $parsed_args['method'] ?? 'GET',
+        'headers' => $parsed_args['headers'] ?? [],
+        'body'    => $parsed_args['body'] ?? null,
+    ];
+
+    file_put_contents(
+        $logFile,
+        json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . PHP_EOL . str_repeat('-', 80) . PHP_EOL,
+        FILE_APPEND
+    );
+
+    return false;
+
+}, 10, 3);
+
+
+add_action('http_api_debug', function ($response, $context, $class, $parsed_args, $url) {
+
+    $logFile = WP_CONTENT_DIR . '/outgoing-requests.log';
+
+    $data = [
+        'time'    => date('Y-m-d H:i:s'),
+        'type'    => 'after_request',
+        'context' => $context,
+        'url'     => $url,
+        'method'  => $parsed_args['method'] ?? 'GET',
+        'response_code' => is_wp_error($response)
+            ? 'WP_ERROR'
+            : wp_remote_retrieve_response_code($response),
+        'error' => is_wp_error($response)
+            ? $response->get_error_message()
+            : null,
+    ];
+
+    file_put_contents(
+        $logFile,
+        json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . PHP_EOL . str_repeat('-', 80) . PHP_EOL,
+        FILE_APPEND
+    );
+
+}, 10, 5);
+
+*/

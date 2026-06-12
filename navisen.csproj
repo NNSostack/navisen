@@ -84,12 +84,15 @@
     <Content Include="wp-content\themes\newspaper-child\editor-style.css" />
     <Content Include="wp-content\themes\newspaper-child\faktaboks.css" />
     <Content Include="wp-content\themes\newspaper-child\style.css" />
+    <Content Include="wp-content\uploads\billedet-findes-ikke.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Migration\themeforest-2EnVD4MZ-newspaper-wordpress-theme.zip" />
+    <Content Include=".htaccess" />
+    <None Include="Properties\PublishProfiles\Dev - nAvisen.pubxml" />
     <None Include="Properties\PublishProfiles\Test - nAvisen.pubxml" />
     <None Include="Properties\PublishProfiles\nAvisen.pubxml" />
   </ItemGroup>

@@ -6,8 +6,8 @@ by editing this MSBuild file. In order to learn more about this please visit htt
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <TimeStampOfAssociatedLegacyPublishXmlFile />
-    <EncryptedPassword>AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAxwnb2WxTy0yJRftvZ99NdgAAAAACAAAAAAAQZgAAAAEAACAAAADSeSQOhiy6OeTLj8GTAutRj7KCepITwI7L26YB9uZKEQAAAAAOgAAAAAIAACAAAAAraUWrvQaVN5ZIB0r96mLDOiXHHDribDeknCrglgMD0CAAAAAYklC/g0NzKFz12Vblu0YvGX8FccM1Or/fiM7OTjD+q0AAAACIGMyK3cn4nhl6WyTQPNul2zYJ3yTlhptBDbriolM0JpJkW4dA8cicPJVgqjcs5DXSzGYD+7R8gL/ZUgjINR/v</EncryptedPassword>
-    <_PublishTargetUrl>ftp://linux235.unoeuro.com/navisen-test/</_PublishTargetUrl>
+    <EncryptedPassword>AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAegx8dVLlOE2P0UjDqU1n2AAAAAACAAAAAAAQZgAAAAEAACAAAABIspx0y5LYMC8ntT510sGxsgofmYYX0qlJfpY7ioo6tAAAAAAOgAAAAAIAACAAAACE7UoL0KKOoyYqKeMgXOm99B5KWbJgtQUrXK4DxPKkdUAAAAAvgWJf1VjtmySjmnpznwLdtjWLYbOuNXZ9Vn3FM5EPm/rSog1GCZ1a/SJDQnTeehTbTRZZpWkWKz4NqoKxPxEBQAAAADOM5LS5z232PqqIwWxm+SOQl1+8XAMEd8kJTlVBy79WOA97fMpltkDnsxmBxNulckKHvL8xSwVtC0VAP2vXzDo=</EncryptedPassword>
+    <_PublishTargetUrl>ftp://wp02-test.ruc.dk/public_html/</_PublishTargetUrl>
   </PropertyGroup>
   <ItemGroup>
     <File Include="Migration/HowTo.txt">
@@ -20,46 +20,46 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
     <File Include="wp-content/themes/newspaper-child/actions.php">
-      <publishTime>11/07/2025 21:01:17</publishTime>
+      <publishTime>07/11/2025 21:01:17</publishTime>
     </File>
     <File Include="wp-content/themes/newspaper-child/dragdrop.js">
-      <publishTime>11/07/2025 17:51:33</publishTime>
+      <publishTime>07/11/2025 17:51:33</publishTime>
     </File>
     <File Include="wp-content/themes/newspaper-child/edit.css">
-      <publishTime>11/20/2025 14:03:52</publishTime>
+      <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
     <File Include="wp-content/themes/newspaper-child/edit.js">
-      <publishTime>11/18/2025 11:02:29</publishTime>
+      <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
     <File Include="wp-content/themes/newspaper-child/edit.php">
-      <publishTime>11/18/2025 14:45:30</publishTime>
+      <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
     <File Include="wp-content/themes/newspaper-child/editor-style.css">
-      <publishTime>11/20/2025 14:05:12</publishTime>
+      <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
     <File Include="wp-content/themes/newspaper-child/functions.js">
-      <publishTime>11/05/2025 11:12:46</publishTime>
+      <publishTime>05/11/2025 11:12:46</publishTime>
     </File>
     <File Include="wp-content/themes/newspaper-child/functions.php">
-      <publishTime>12/08/2025 12:13:50</publishTime>
+      <publishTime>06/12/2026 11:20:28</publishTime>
     </File>
     <File Include="wp-content/themes/newspaper-child/helper.js">
-      <publishTime>11/06/2025 12:40:05</publishTime>
+      <publishTime>06/11/2025 12:40:05</publishTime>
     </File>
     <File Include="wp-content/themes/newspaper-child/js/factbox-faktaboks.js">
-      <publishTime>11/17/2025 15:09:08</publishTime>
+      <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
     <File Include="wp-content/themes/newspaper-child/js/featured-caption-live-sync.js">
-      <publishTime>11/20/2025 14:18:04</publishTime>
+      <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
     <File Include="wp-content/themes/newspaper-child/popup.js">
-      <publishTime>11/10/2025 13:11:26</publishTime>
+      <publishTime>10/11/2025 13:11:26</publishTime>
     </File>
     <File Include="wp-content/themes/newspaper-child/readme.txt">
-      <publishTime>11/20/2025 14:34:21</publishTime>
+      <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
     <File Include="wp-content/themes/newspaper-child/style.css">
-      <publishTime>11/17/2025 14:57:30</publishTime>
+      <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
   </ItemGroup>
 </Project>

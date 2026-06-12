@@ -8,6 +8,7 @@ echo "<br/>";
 print_r("Mid: " . get_option('navisen_mid_list'));
 echo "<br/>";
 
+
 // Hæv eksekveringstid
 set_time_limit(600);
 
@@ -16,26 +17,47 @@ ini_set('memory_limit', '512M');
 ini_set('max_execution_time', '1200');
 
 function mark_posts_with_category($post_ids_csv, $category_id) {
-    $post_ids = array_map('intval', explode(',', $post_ids_csv));
+    $post_ids = array_filter(array_map('intval', explode(',', $post_ids_csv)));
+    $category_id = (int)$category_id;
+
+    $term = get_term($category_id, 'category');
+
+    if (!$term || is_wp_error($term)) {
+        echo "Kategori findes ikke: $category_id<br>";
+        return;
+    }
 
     $order = 100;
 
     foreach ($post_ids as $post_id) {
+        $post = get_post($post_id);
 
-        // Tjek at posten eksisterer
-        if (get_post($post_id)) {
-
-            // Tilføj kategori
-            wp_set_post_categories($post_id, [$category_id], true);
-
-            // Sæt menu_order
-            wp_update_post([
-                'ID'         => $post_id,
-                'menu_order' => $order
-            ]);
-
-            $order += 100; // næste bliver +100
+        if (!$post) {
+            echo "Findes IKKE: $post_id<br>";
+            continue;
         }
+
+        echo "Findes: $post_id ({$post->post_type})<br>";
+
+        // Brug denne hvis det er almindelige posts
+        $result = wp_set_object_terms($post_id, [$category_id], 'category', true);
+
+        if (is_wp_error($result)) {
+            echo "Fejl ved kategori på $post_id: " . $result->get_error_message() . "<br>";
+        } else {
+            echo "Kategori sat på $post_id<br>";
+        }
+
+        $update_result = wp_update_post([
+            'ID'         => $post_id,
+            'menu_order' => $order
+        ], true);
+
+        if (is_wp_error($update_result)) {
+            echo "Fejl ved menu_order på $post_id: " . $update_result->get_error_message() . "<br>";
+        }
+
+        $order += 100;
     }
 }
 
@@ -305,17 +327,34 @@ function nns_try_import_local_mirror_and_attach($image_url, $post_id) {
     msg(sprintf('[nns] Post %d: Lokal fil fundet: %s', $post_id, $local_abs));
 
     $uploads = wp_get_upload_dir();
+
     if ( empty($uploads['basedir']) || empty($uploads['baseurl']) ) {
         msg(sprintf('[nns] Post %d: Upload dir ikke tilgængelig – returnerer 0.', $post_id));
         return 0;
     }
 
-    $rel_from_root = ltrim(str_replace('\\', '/', $path_clean), '/');
-    $rel_from_root = trim($rel_from_root, "/ \t\n\r\0\x0B");
+    // VIGTIGT:
+    // Hvis billedet allerede ligger under /wp-content/uploads/..., må vi IKKE
+    // lægge hele /wp-content/uploads-stien ind under uploads igen.
+    // Ellers ender filen i /wp-content/uploads/wp-content/uploads/...
+    $path_clean_normalized = '/' . ltrim(str_replace('\\', '/', $path_clean), '/');
 
-    $dest_abs = trailingslashit($uploads['basedir']) . $rel_from_root;
+    $uploads_path = wp_parse_url($uploads['baseurl'], PHP_URL_PATH);
+    $uploads_path = '/' . trim((string)$uploads_path, '/');
+
+    if ($uploads_path && strpos($path_clean_normalized, $uploads_path . '/') === 0) {
+        // Eksempel: /wp-content/uploads/2024/01/img.jpg -> 2024/01/img.jpg
+        $rel_from_uploads = substr($path_clean_normalized, strlen($uploads_path) + 1);
+    } else {
+        // Fallback: bevar gammel adfærd, men uden foranstillet slash.
+        $rel_from_uploads = ltrim($path_clean_normalized, '/');
+    }
+
+    $rel_from_uploads = trim($rel_from_uploads, "/ \t\n\r\0\x0B");
+
+    $dest_abs = trailingslashit($uploads['basedir']) . $rel_from_uploads;
     $dest_dir = dirname($dest_abs);
-    $dest_url = trailingslashit($uploads['baseurl']) . $rel_from_root;
+    $dest_url = trailingslashit($uploads['baseurl']) . $rel_from_uploads;
 
     msg(sprintf('[nns] Post %d: Destination: %s', $post_id, $dest_abs));
 
@@ -336,7 +375,7 @@ function nns_try_import_local_mirror_and_attach($image_url, $post_id) {
     }
 
     // Tjek om der allerede findes attachment
-    $rel_for_meta = ltrim(str_replace(trailingslashit($uploads['basedir']), '', $dest_abs), '/');
+    $rel_for_meta = $rel_from_uploads;
     $existing = nns_find_attachment_by_attached_file($rel_for_meta);
 
     if ($existing) {
@@ -571,8 +610,9 @@ function nns_set_featured_from_first_img_all($post_type = 'post', $batch_size = 
             //  Hvis der allerede er en thumbnail må vi godt gå videre for at slette billede
             // Spring over hvis vi ikke må overskrive og der allerede er thumbnail
             if (!$overwrite_existing && has_post_thumbnail($post_id)) {
-                nns_reimport_featured_image_like_html_migration($post_id);
+                msg(sprintf('[nns] Post %d: Har allerede thumbnail – skipper re-import.', $post_id));
                 $mark_migrated($post_id);
+                continue;
             }
 
             $content = get_post_field('post_content', $post_id);
@@ -1231,9 +1271,9 @@ function nns_reimport_featured_image_like_html_migration($post_id, $delete_old_a
 
 /* Step 1 - From list to categories */
 if ( isset($_GET["step"]) && $_GET["step"] == "1" ) {
-    mark_posts_with_category(get_option('navisen_left_list'), 4659);
-    mark_posts_with_category(get_option('navisen_mid_list'), 4660);
-    mark_posts_with_category(get_option('navisen_featured'), 4661);
+    mark_posts_with_category("142969,142884,142813,142020,142014,141985,141794,141687,141523,141081,", 4827);
+    mark_posts_with_category("'144120,143126,141487,142163,142317,141798,141585,141536,141488,141472,141195,140746,141218,", 4828);
+    mark_posts_with_category("143713,143440,142588,142368,142619,142299,142020,142049,141487,141670,141752,", 4829);
 }
 
 /* Step 2 - Fix for first image to selected image */
@@ -1248,7 +1288,7 @@ if ( isset($_GET["step"]) && $_GET["step"] == "3" ) {
     //nns_run_simple_permalink_and_html_link_fix(['post','page'], 100, true);
 
     // Gem ændringer:
-    nns_run_simple_permalink_and_html_link_fix(['post','page'], 200, false);
+    nns_run_simple_permalink_and_html_link_fix(['post','page'], 200, true);
     msg('Kørsel fuldført (step 3).');
 }
 

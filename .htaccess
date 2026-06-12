@@ -1,0 +1,20 @@
+# BEGIN WordPress
+# Direktiverne (linjer) mellem 'BEGIN WordPress' og 'END WordPress' er
+# dynamisk genereret og bør kun ændres via WordPress-filtre.
+# Eventuelle ændringer i direktiverne mellem disse markører vil blive overskrevet.
+<IfModule mod_rewrite.c>
+RewriteEngine On
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_URI} \.(jpg|jpeg|png|gif|webp|svg)$ [NC]
+RewriteRule ^ wp-content/uploads/billedet-findes-ikke.png [L]
+
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+</IfModule>
+
+# END WordPress
