@@ -580,13 +580,13 @@ function ruc_entra_user_is_allowed($user = null) {
         return false;
     }
 
+
+    /**
+     * 1. Adgang via e-mail positivliste.
+     */
     $email = strtolower(
         trim($user->user_email)
     );
-
-    if (!$email) {
-        return false;
-    }
 
     $allowed_emails = array_map(
         function ($email) {
@@ -598,11 +598,68 @@ function ruc_entra_user_is_allowed($user = null) {
         ruc_entra_allowed_emails()
     );
 
-    return in_array(
-        $email,
-        $allowed_emails,
+    if (
+        $email &&
+        in_array(
+            $email,
+            $allowed_emails,
+            true
+        )
+    ) {
+        return true;
+    }
+
+
+    /**
+     * 2. Adgang via Entra Group Object ID (GUID).
+     *
+     * Alle GUID'er der findes som nøgler i
+     * ruc_entra_group_role_map() giver adgang.
+     */
+    $memberships = get_user_meta(
+        $user->ID,
+        '_ruc_entra_memberships',
         true
     );
+
+    if (
+        !empty($memberships) &&
+        is_array($memberships)
+    ) {
+
+        $allowed_group_guids = array_map(
+            'strtolower',
+            array_keys(
+                ruc_entra_group_role_map()
+            )
+        );
+
+        foreach ($memberships as $membership) {
+
+            $membership_id = strtolower(
+                trim(
+                    $membership['id'] ?? ''
+                )
+            );
+
+            if (
+                $membership_id &&
+                in_array(
+                    $membership_id,
+                    $allowed_group_guids,
+                    true
+                )
+            ) {
+                return true;
+            }
+        }
+    }
+
+
+    /**
+     * Hverken e-mail eller Entra GUID gav adgang.
+     */
+    return false;
 }
 
 
