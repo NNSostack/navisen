@@ -95,6 +95,7 @@
     <None Include="Properties\PublishProfiles\Dev - nAvisen.pubxml" />
     <None Include="Properties\PublishProfiles\Test - nAvisen.pubxml" />
     <None Include="Properties\PublishProfiles\nAvisen.pubxml" />
+    <Content Include="wp-content\mu-plugins\entra-access.php" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

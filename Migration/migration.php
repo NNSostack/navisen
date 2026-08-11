@@ -865,7 +865,8 @@ function nns_strip_leading_blog_segment($href) {
  * @param bool         $dry_run     true = test (gemmer ikke), false = gem
  */
 function nns_fix_html_links_remove_blog_segment($post_types = ['post','page'], $batch_size = 200, $dry_run = true) {
-    $page = 1; $posts_changed = 0; $links_changed = 0;
+    $page = 1;
+    $posts_changed = 0;
 
     do {
         $q = new WP_Query([
@@ -876,62 +877,49 @@ function nns_fix_html_links_remove_blog_segment($post_types = ['post','page'], $
             'paged'          => $page,
             'no_found_rows'  => true,
         ]);
-        if (!$q->have_posts()) break;
+
+        if (!$q->have_posts()) {
+            break;
+        }
 
         foreach ($q->posts as $post_id) {
             $content = get_post_field('post_content', $post_id);
-            if (!$content || stripos($content, '<a ') === false) continue;
 
-            $changed_here = 0;
-            $new_content = preg_replace_callback(
-                '#(<a\b[^>]*\bhref\s*=\s*)([\'"])(?P<href>[^\'"]+)\2#i',
-                function ($m) use (&$changed_here) {
-                    $prefix = $m[1];
-                    $q      = $m[2];
-                    $href   = $m['href'];
+            if (!$content || stripos($content, 'navisen.dk/blog/') === false) {
+                continue;
+            }
 
-                    // Kun hvis der reelt er et /blog i starten af path (relativ eller absolut)
-                    $abs = nns_abs_internal_url_simple($href);
-                    $p   = wp_parse_url($abs);
-                    $path = isset($p['path']) ? $p['path'] : '/';
-                    if ($path !== '/blog' && strpos($path, '/blog/') !== 0) {
-                        return $m[0];
-                    }
-
-                    $new = nns_strip_leading_blog_segment($href);
-                    if ($new !== $href) {
-                        $changed_here++;
-                        return $prefix . $q . $new . $q;
-                    }
-                    return $m[0];
-                },
+            $new_content = str_ireplace(
+                'navisen.dk/blog/',
+                'navisen.dk/',
                 $content
             );
 
-            if ($changed_here > 0 && $new_content !== null && $new_content !== $content) {
+            if ($new_content !== $content) {
                 if (!$dry_run) {
                     wp_update_post([
                         'ID'           => $post_id,
                         'post_content' => $new_content,
                     ]);
                 }
+
                 $posts_changed++;
-                $links_changed += $changed_here;
-                error_log(sprintf('[nns] Post %d: %d link(s) opdateret.', $post_id, $changed_here));
+
+                echo sprintf('[nns] Post %d opdateret.<br/>', $post_id);
             }
         }
 
         wp_reset_postdata();
         $page++;
+
     } while (true);
 
-    error_log(sprintf('[nns] HTML-link fix %s — %d posts, %d links.',
+    error_log(sprintf(
+        '[nns] HTML-link fix %s — %d posts opdateret.',
         $dry_run ? '(DRY RUN)' : '(SAVED)',
-        $posts_changed,
-        $links_changed
+        $posts_changed
     ));
 }
-
 /**
  * Lille "runner" du kan kalde fra WP-CLI eller en midlertidig admin action.
  */
@@ -1288,7 +1276,7 @@ if ( isset($_GET["step"]) && $_GET["step"] == "3" ) {
     //nns_run_simple_permalink_and_html_link_fix(['post','page'], 100, true);
 
     // Gem ændringer:
-    nns_run_simple_permalink_and_html_link_fix(['post','page'], 200, true);
+    nns_run_simple_permalink_and_html_link_fix(['post','page'], 200, false);
     msg('Kørsel fuldført (step 3).');
 }
 

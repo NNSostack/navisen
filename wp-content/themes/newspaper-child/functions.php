@@ -95,7 +95,7 @@ function theme_asset_with_cache_busting($relative_path) {
 
 if ( is_user_logged_in() ) {
     
-    if ( current_user_can('administrator') || current_user_can('editor') ) {
+    if (current_user_can('administrator') || current_user_can('editor') ) {
         // Brugeren er enten admin eller editor
         include __DIR__ . '/actions.php';
         include __DIR__ . '/edit.php';
@@ -169,6 +169,39 @@ if ( is_user_logged_in() ) {
         );
     });
 }
+
+//  Order by menu_order to be able to sort manualley
+add_action('pre_get_posts', function($query) {
+    if (is_admin() || !$query->is_category()) {
+        return;
+    }
+    
+    // Hent nuværende kategoriobjekt
+    $cat = $query->queried_object;
+
+    // Hvis det er 'alle-nyheder', så spring over
+    if ($cat && isset($cat->slug) && $cat->slug === 'alle-nyheder') {
+        return;
+    }
+
+    // --- Find alle underkategorier under "lister"
+    $list_parent = get_term_by('slug', 'lister', 'category');
+    if (!$list_parent) {
+        return;
+    }
+
+    $list_child_ids = get_terms([
+        'taxonomy'   => 'category',
+        'child_of'   => $list_parent->term_id,
+        'hide_empty' => false,
+        'fields'     => 'ids',
+    ]);
+
+    if ($query->is_category($list_child_ids)) {
+        $query->set('orderby', 'menu_order date');
+        $query->set('order', 'ASC');
+    }
+});
 
 //  Fjern alle-nyheder og lister og underkategorier 
 add_filter('get_the_terms', function($terms, $post_id, $taxonomy) {
@@ -271,10 +304,10 @@ add_filter('get_the_terms', function($terms, $post_id, $taxonomy) {
 
 //  Only get alle-nyheder if not in one of the other lists
 add_action('pre_get_posts', function($query) {
-    if (is_admin() || !$query->is_category()) {
+    if (is_admin() || !$query->is_category() || !$query->is_main_query()) {
         return;
     }
-
+    
     if ($query->is_category('alle-nyheder')) {
 
         // --- Find alle underkategorier under "lister"
@@ -297,6 +330,96 @@ add_action('pre_get_posts', function($query) {
         // --- Udeluk alle posts, der er i disse underkategorier
         $query->set('category__not_in', $list_child_ids);
     }
+});
+
+/**
+ * Redirect direkte til Microsoft Entra ID uden at vise WordPress-login.
+ */
+add_action('login_init', function () {
+    // Nødadgang til almindeligt WordPress-login.
+    if (
+        isset($_GET['local-login']) &&
+        $_GET['local-login'] === '1'
+    ) {
+        return;
+    }
+
+    // Gør det kun på den almindelige login-side.
+    $action = isset($_REQUEST['action'])
+        ? sanitize_key($_REQUEST['action'])
+        : 'login';
+
+    if ($action !== 'login') {
+        return;
+    }
+
+    // Hold hele login-sidens output tilbage.
+    ob_start();
+}, 1);
+
+add_action('login_footer', function () {
+    if (
+        isset($_GET['local-login']) &&
+        $_GET['local-login'] === '1'
+    ) {
+        return;
+    }
+
+    if (ob_get_level() === 0) {
+        return;
+    }
+
+    $html = ob_get_clean();
+
+    // Find Microsoft-knappens dynamisk genererede URL.
+    if (
+        preg_match(
+            '/<a[^>]*class=["\'][^"\']*\bwal-button\b[^"\']*["\'][^>]*href=["\']([^"\']+)["\']/i',
+            $html,
+            $matches
+        )
+    ) {
+        $microsoft_url = html_entity_decode(
+            $matches[1],
+            ENT_QUOTES | ENT_HTML5,
+            'UTF-8'
+        );
+
+        // wp_redirect bruges, fordi destinationen er et eksternt domæne.
+        wp_redirect($microsoft_url);
+        exit;
+    }
+
+    // Vis login-siden normalt, hvis Microsoft-linket ikke kunne findes.
+    echo $html;
+}, PHP_INT_MAX);
+
+/*
+ * Plugin Name: Protect REST-API
+ * Auther: Frank Wagner
+ * Description: Require login to access REST-API
+ */
+
+add_filter( 'rest_authentication_errors', function( $result ) {
+    // If a previous authentication check was applied,
+    // pass that result along without modification.
+    if ( true === $result || is_wp_error( $result ) ) {
+        return $result;
+    }
+
+    // No authentication has been performed yet.
+    // Return an error if user is not logged in.
+    if ( ! is_user_logged_in() ) {
+        return new WP_Error(
+            'rest_not_logged_in',
+            __( 'You are not currently logged in.' ),
+            array( 'status' => 401 )
+        );
+    }
+
+    // Our custom authentication check should have no effect
+    // on logged-in requests
+    return $result;
 });
 
 /*
