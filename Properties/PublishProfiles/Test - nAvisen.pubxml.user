@@ -10,6 +10,9 @@ by editing this MSBuild file. In order to learn more about this please visit htt
     <_PublishTargetUrl>ftp://wp02-test.ruc.dk/public_html/</_PublishTargetUrl>
   </PropertyGroup>
   <ItemGroup>
+    <File Include=".htaccess">
+      <publishTime>01/01/0001 00:00:00</publishTime>
+    </File>
     <File Include="Migration/HowTo.txt">
       <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
@@ -19,46 +22,61 @@ by editing this MSBuild file. In order to learn more about this please visit htt
     <File Include="Migration/themeforest-2EnVD4MZ-newspaper-wordpress-theme.zip">
       <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
+    <File Include="navislist.php">
+      <publishTime>08/12/2026 11:07:30</publishTime>
+    </File>
+    <File Include="wp-content/mu-plugins/entra-access.php">
+      <publishTime>10/08/2026 15:05:22</publishTime>
+    </File>
+    <File Include="wp-content/navislist.php">
+      <publishTime>08/12/2026 11:07:30</publishTime>
+    </File>
     <File Include="wp-content/themes/newspaper-child/actions.php">
-      <publishTime>07/11/2025 21:01:17</publishTime>
+      <publishTime>06/12/2026 11:22:47</publishTime>
     </File>
     <File Include="wp-content/themes/newspaper-child/dragdrop.js">
-      <publishTime>07/11/2025 17:51:33</publishTime>
+      <publishTime>06/12/2026 11:22:47</publishTime>
     </File>
     <File Include="wp-content/themes/newspaper-child/edit.css">
-      <publishTime>01/01/0001 00:00:00</publishTime>
+      <publishTime>06/12/2026 11:22:47</publishTime>
     </File>
     <File Include="wp-content/themes/newspaper-child/edit.js">
-      <publishTime>01/01/0001 00:00:00</publishTime>
+      <publishTime>06/12/2026 11:22:47</publishTime>
     </File>
     <File Include="wp-content/themes/newspaper-child/edit.php">
-      <publishTime>01/01/0001 00:00:00</publishTime>
+      <publishTime>08/11/2026 13:30:05</publishTime>
     </File>
     <File Include="wp-content/themes/newspaper-child/editor-style.css">
-      <publishTime>01/01/0001 00:00:00</publishTime>
+      <publishTime>06/12/2026 11:22:47</publishTime>
+    </File>
+    <File Include="wp-content/themes/newspaper-child/faktaboks.css">
+      <publishTime>06/12/2026 11:22:47</publishTime>
     </File>
     <File Include="wp-content/themes/newspaper-child/functions.js">
-      <publishTime>05/11/2025 11:12:46</publishTime>
+      <publishTime>08/11/2026 13:19:37</publishTime>
     </File>
     <File Include="wp-content/themes/newspaper-child/functions.php">
-      <publishTime>06/12/2026 11:20:28</publishTime>
+      <publishTime>08/11/2026 13:30:21</publishTime>
     </File>
     <File Include="wp-content/themes/newspaper-child/helper.js">
-      <publishTime>06/11/2025 12:40:05</publishTime>
+      <publishTime>06/12/2026 11:22:48</publishTime>
     </File>
     <File Include="wp-content/themes/newspaper-child/js/factbox-faktaboks.js">
-      <publishTime>01/01/0001 00:00:00</publishTime>
+      <publishTime>06/12/2026 11:22:46</publishTime>
     </File>
     <File Include="wp-content/themes/newspaper-child/js/featured-caption-live-sync.js">
-      <publishTime>01/01/0001 00:00:00</publishTime>
+      <publishTime>06/12/2026 11:22:46</publishTime>
     </File>
     <File Include="wp-content/themes/newspaper-child/popup.js">
-      <publishTime>10/11/2025 13:11:26</publishTime>
+      <publishTime>06/12/2026 11:22:48</publishTime>
     </File>
     <File Include="wp-content/themes/newspaper-child/readme.txt">
-      <publishTime>01/01/0001 00:00:00</publishTime>
+      <publishTime>06/12/2026 11:22:48</publishTime>
     </File>
     <File Include="wp-content/themes/newspaper-child/style.css">
+      <publishTime>06/12/2026 11:22:48</publishTime>
+    </File>
+    <File Include="wp-content/uploads/billedet-findes-ikke.png">
       <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
   </ItemGroup>
