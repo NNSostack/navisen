@@ -10,7 +10,7 @@
     border-top-width: 10px;
     float: left;
     width: 50%;
-    background-color: #99230a;
+    background-color: var(--td_theme_color);
     color: white !important;
     padding: 10px;
     margin-right: 10px !important;
@@ -32,7 +32,7 @@
     border-top-width: 10px;
     float: right;
     width: 50%;
-    background-color: #99230a;
+    background-color: var(--td_theme_color);
     color: white !important;
     padding: 10px;
     margin-left: 10px !important;

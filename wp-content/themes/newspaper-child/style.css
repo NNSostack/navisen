@@ -11,6 +11,11 @@
  Text Domain: newspaper-child
 */
 
+
+:root {
+    --tt-accent-color: var(--td_theme_color) !important;
+}
+
 .featured_caption {
     z-index: 1;
     text-align: left;
