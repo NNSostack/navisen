@@ -69,6 +69,13 @@
   <ItemGroup>
     <Content Include="Migration\HowTo.txt" />
     <Content Include="Migration\migration.php" />
+    <Content Include="wp-content\plugins\mediaembeds\default.js" />
+    <Content Include="wp-content\plugins\mediaembeds\embed.css" />
+    <Content Include="wp-content\plugins\mediaembeds\embed.js" />
+    <Content Include="wp-content\plugins\mediaembeds\iframe.css" />
+    <Content Include="wp-content\plugins\mediaembeds\iframe.js" />
+    <Content Include="wp-content\plugins\mediaembeds\jquery-1.min.js" />
+    <Content Include="wp-content\plugins\mediaembeds\jquery.min.js" />
     <Content Include="wp-content\themes\newspaper-child\dragdrop.js" />
     <Content Include="wp-content\themes\newspaper-child\edit.php" />
     <Content Include="wp-content\themes\newspaper-child\actions.php" />
@@ -97,7 +104,14 @@
     <None Include="Properties\PublishProfiles\nAvisen.pubxml" />
     <Content Include="wp-content\mu-plugins\entra-access.php" />
     <Content Include="navislist.php" />
+    <Content Include="wp-content\plugins\mediaembeds\embedtest.php" />
+    <Content Include="wp-content\plugins\mediaembeds\jquery-1.11.0.min.map" />
+    <Content Include="wp-content\plugins\mediaembeds\jquery-2.1.0.min.map" />
+    <Content Include="wp-content\plugins\mediaembeds\MediaEmbedder.php" />
+    <Content Include="wp-content\plugins\mediaembeds\template.php" />
+    <Content Include="wp-content\plugins\mediaembeds\template_raw.php" />
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
