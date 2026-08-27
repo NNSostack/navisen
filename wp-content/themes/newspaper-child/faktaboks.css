@@ -14,17 +14,17 @@
     color: white !important;
     padding: 10px;
     margin-right: 10px !important;
-    font-family: Arial;
-    font-size: 12px;
+    font-size: 75%;
 }
 
-    .factboxleft a {
-        color: #808080 !important;
+    .factboxright a, .factboxleft a {
+        color: #FFE066 !important;
     }
 
-.factboxright a {
-    color: #808080 !important;
+.factboxright a:hover, .factboxleft a:hover {
+    color: black !important;
 }
+
 
 .factboxright {
     border-top: solid;
@@ -36,8 +36,6 @@
     color: white !important;
     padding: 10px;
     margin-left: 10px !important;
-    font-family: Arial;
-    font-size: 12px;
-    line-height: 20px;
+    font-size: 75%;
 }
 

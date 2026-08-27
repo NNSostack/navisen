@@ -2,7 +2,7 @@
 /**
  * Plugin Name: RUC Entra Access Control
  * Description: Adgangskontrol, Entra-grupper, WordPress-roller og debug.
- * Version: 1.0
+ * Version: 1.2
  */
 
 if (!defined('ABSPATH')) {
@@ -22,7 +22,8 @@ if (!defined('ABSPATH')) {
 function ruc_entra_allowed_emails() {
     return [
         'nicenew-ns@ruc.dk',
-        'makaeb@ruc.dk'
+        'makaeb@ruc.dk',
+        'nns@online-it-support.dk'
     ];
 }
 
@@ -49,13 +50,13 @@ function ruc_entra_group_role_map() {
     return [
 
         // Entra admin-gruppe
-        // 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' => 'administrator',
+        '97f0bc87-1ca3-47f0-b282-7163a3054af2' => 'administrator',
 
-        // Entra editor-gruppe
+        // Entra contributor-gruppe
         '41a5a5ca-a170-463d-8fbc-67a75f97ba21' => 'contributor',
 
-        // Entra subscriber-gruppe
-        // 'zzzzzzzz-zzzz-zzzz-zzzz-zzzzzzzzzzzz' => 'subscriber',
+        // Entra editor-gruppe
+        '4eded0e2-69c6-43bd-a8fe-f9460c41231b' => 'editor',
 
     ];
 }
@@ -163,12 +164,27 @@ add_filter('http_response', function ($response, $parsed_args, $url) {
     $_SESSION['ruc_entra_access_token'] = $data['access_token'];
 
     /**
+     * Sørg for at WordPress-brugeren findes INDEN login-pluginet
+     * fortsætter behandlingen af Microsoft-svaret.
+     *
+     * Vi bruger Graph /me, fordi access_token altid er tilgængeligt her,
+     * mens id_token ikke nødvendigvis indeholder en brugbar e-mail.
+     */
+    ruc_entra_ensure_wordpress_user_from_access_token(
+        $data['access_token']
+    );
+
+    /**
      * Gem også id_token midlertidigt hvis Microsoft sender det.
      *
-     * Vi bruger det kun til debug af claims.
+     * Vi bruger det til debug af claims og som ekstra fallback.
      */
     if (!empty($data['id_token'])) {
         $_SESSION['ruc_entra_id_token'] = $data['id_token'];
+
+        ruc_entra_ensure_wordpress_user_from_id_token(
+            $data['id_token']
+        );
     }
 
     ruc_entra_debug(
@@ -233,6 +249,366 @@ function ruc_entra_decode_jwt_payload($jwt) {
     return is_array($data)
         ? $data
         : [];
+}
+
+
+/**
+ * ============================================================
+ * OPRET WORDPRESS-BRUGER FRA ENTRA ID TOKEN
+ * ============================================================
+ *
+ * Opretter kun brugeren hvis der ikke allerede findes
+ * en WordPress-bruger med samme e-mailadresse.
+ *
+ * Rollen sættes midlertidigt til subscriber.
+ * Den eksisterende Entra-gruppelogik kan efterfølgende
+ * ændre rollen ved login.
+ */
+function ruc_entra_ensure_wordpress_user_from_id_token($id_token) {
+
+    $claims = ruc_entra_decode_jwt_payload(
+        $id_token
+    );
+
+    if (empty($claims)) {
+        return new WP_Error(
+            'missing_claims',
+            'Kunne ikke læse claims fra Microsoft id_token.'
+        );
+    }
+
+
+    /**
+     * Microsoft kan sende brugerens e-mail i forskellige claims.
+     */
+    $email_candidates = [
+        $claims['email'] ?? '',
+        $claims['preferred_username'] ?? '',
+        $claims['upn'] ?? '',
+    ];
+
+    $email = '';
+
+    foreach ($email_candidates as $candidate) {
+
+        $candidate = sanitize_email(
+            trim((string) $candidate)
+        );
+
+        if (
+            $candidate &&
+            is_email($candidate)
+        ) {
+            $email = strtolower($candidate);
+            break;
+        }
+    }
+
+
+    if (!$email) {
+
+        ruc_entra_debug(
+            'Kunne ikke oprette WordPress-bruger: ingen gyldig e-mail i id_token.',
+            [
+                'claim_keys' => array_keys($claims),
+            ]
+        );
+
+        return new WP_Error(
+            'missing_email',
+            'Microsoft-login indeholdt ikke en gyldig e-mailadresse.'
+        );
+    }
+
+
+    /**
+     * Brugeren findes allerede.
+     */
+    $existing_user = get_user_by(
+        'email',
+        $email
+    );
+
+    if ($existing_user) {
+
+        ruc_entra_debug(
+            'WordPress-bruger findes allerede.',
+            [
+                'user_id' => $existing_user->ID,
+                'email'   => $email,
+            ]
+        );
+
+        return $existing_user->ID;
+    }
+
+
+    /**
+     * Brug hele e-mailadressen som WordPress-login.
+     *
+     * Det matcher Microsoft-login'et bedre end kun delen før @
+     * og undgår at login-pluginet efterfølgende siger "User not found".
+     */
+    $base_username = sanitize_user(
+        $email,
+        true
+    );
+
+    if (!$base_username) {
+        $base_username = 'entra-user';
+    }
+
+    $username = $base_username;
+    $suffix   = 2;
+
+    while (username_exists($username)) {
+
+        $username =
+            $base_username
+            . '-'
+            . $suffix;
+
+        $suffix++;
+    }
+
+
+    /**
+     * Navn fra Microsoft claims.
+     */
+    $first_name = sanitize_text_field(
+        $claims['given_name'] ?? ''
+    );
+
+    $last_name = sanitize_text_field(
+        $claims['family_name'] ?? ''
+    );
+
+    $display_name = sanitize_text_field(
+        $claims['name'] ?? ''
+    );
+
+    if (!$display_name) {
+        $display_name = trim(
+            $first_name . ' ' . $last_name
+        );
+    }
+
+    if (!$display_name) {
+        $display_name = $email;
+    }
+
+
+    /**
+     * Opret WordPress-brugeren.
+     */
+    $user_id = wp_insert_user(
+        [
+            'user_login'   => $username,
+            'user_pass'    => wp_generate_password(32, true, true),
+            'user_email'   => $email,
+            'display_name' => $display_name,
+            'first_name'   => $first_name,
+            'last_name'    => $last_name,
+            'role'         => 'subscriber',
+        ]
+    );
+
+
+    if (is_wp_error($user_id)) {
+
+        ruc_entra_debug(
+            'Kunne ikke oprette WordPress-bruger.',
+            [
+                'email' => $email,
+                'error' => $user_id->get_error_message(),
+            ]
+        );
+
+        return $user_id;
+    }
+
+
+    ruc_entra_debug(
+        'WordPress-bruger oprettet automatisk fra Microsoft-login.',
+        [
+            'user_id'  => $user_id,
+            'email'    => $email,
+            'username' => $username,
+        ]
+    );
+
+
+    return $user_id;
+}
+
+
+/**
+ * ============================================================
+ * OPRET WORDPRESS-BRUGER FRA MICROSOFT GRAPH /ME
+ * ============================================================
+ */
+function ruc_entra_ensure_wordpress_user_from_access_token($access_token) {
+
+    if (!$access_token) {
+        return new WP_Error(
+            'missing_access_token',
+            'Microsoft access token mangler.'
+        );
+    }
+
+    $response = wp_remote_get(
+        'https://graph.microsoft.com/v1.0/me?$select=id,displayName,givenName,surname,mail,userPrincipalName',
+        [
+            'timeout' => 20,
+            'headers' => [
+                'Accept'        => 'application/json',
+                'Authorization' => 'Bearer ' . $access_token,
+            ],
+        ]
+    );
+
+    if (is_wp_error($response)) {
+        ruc_entra_debug(
+            'Kunne ikke hente Microsoft Graph /me ved brugeroprettelse.',
+            $response->get_error_message()
+        );
+        return $response;
+    }
+
+    $status = wp_remote_retrieve_response_code($response);
+    $body   = wp_remote_retrieve_body($response);
+    $me     = json_decode($body, true);
+
+    if (
+        $status < 200 ||
+        $status >= 300 ||
+        !is_array($me)
+    ) {
+        ruc_entra_debug(
+            'Microsoft Graph /me fejlede ved brugeroprettelse.',
+            [
+                'status' => $status,
+                'body'   => $me,
+            ]
+        );
+
+        return new WP_Error(
+            'graph_me_error',
+            'Kunne ikke hente Microsoft-brugeren.'
+        );
+    }
+
+    $email_candidates = [
+        $me['mail'] ?? '',
+        $me['userPrincipalName'] ?? '',
+    ];
+
+    $email = '';
+
+    foreach ($email_candidates as $candidate) {
+        $candidate = sanitize_email(trim((string) $candidate));
+
+        if ($candidate && is_email($candidate)) {
+            $email = strtolower($candidate);
+            break;
+        }
+    }
+
+    if (!$email) {
+        ruc_entra_debug(
+            'Kunne ikke oprette WordPress-bruger fra Graph /me: ingen gyldig e-mail.',
+            $me
+        );
+
+        return new WP_Error(
+            'missing_email',
+            'Microsoft Graph /me indeholdt ikke en gyldig e-mailadresse.'
+        );
+    }
+
+    /**
+     * Find først på e-mail og derefter på login.
+     */
+    $existing_user = get_user_by('email', $email);
+
+    if (!$existing_user) {
+        $existing_user = get_user_by('login', $email);
+    }
+
+    if ($existing_user) {
+        ruc_entra_debug(
+            'WordPress-bruger findes allerede før Microsoft-login fortsætter.',
+            [
+                'user_id' => $existing_user->ID,
+                'email'   => $email,
+                'login'   => $existing_user->user_login,
+            ]
+        );
+
+        return $existing_user->ID;
+    }
+
+    $base_username = sanitize_user($email, true);
+
+    if (!$base_username) {
+        $base_username = 'entra-user';
+    }
+
+    $username = $base_username;
+    $suffix   = 2;
+
+    while (username_exists($username)) {
+        $username = $base_username . '-' . $suffix;
+        $suffix++;
+    }
+
+    $first_name = sanitize_text_field($me['givenName'] ?? '');
+    $last_name  = sanitize_text_field($me['surname'] ?? '');
+    $display_name = sanitize_text_field($me['displayName'] ?? '');
+
+    if (!$display_name) {
+        $display_name = trim($first_name . ' ' . $last_name);
+    }
+
+    if (!$display_name) {
+        $display_name = $email;
+    }
+
+    $user_id = wp_insert_user(
+        [
+            'user_login'   => $username,
+            'user_pass'    => wp_generate_password(32, true, true),
+            'user_email'   => $email,
+            'display_name' => $display_name,
+            'first_name'   => $first_name,
+            'last_name'    => $last_name,
+            'role'         => 'subscriber',
+        ]
+    );
+
+    if (is_wp_error($user_id)) {
+        ruc_entra_debug(
+            'Kunne ikke oprette WordPress-bruger fra Graph /me.',
+            [
+                'email' => $email,
+                'login' => $username,
+                'error' => $user_id->get_error_message(),
+            ]
+        );
+
+        return $user_id;
+    }
+
+    ruc_entra_debug(
+        'WordPress-bruger oprettet fra Graph /me før Microsoft-login fortsætter.',
+        [
+            'user_id'  => $user_id,
+            'email'    => $email,
+            'username' => $username,
+        ]
+    );
+
+    return $user_id;
 }
 
 

@@ -30,3 +30,8 @@
 .factboxright > ul > li, .factboxleft > ul > li {
     font-size: 14px!important;
 }
+
+.excerpt p
+{
+    font-size: 140% !important;
+}
