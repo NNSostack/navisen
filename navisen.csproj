@@ -110,6 +110,9 @@
     <Content Include="wp-content\plugins\mediaembeds\MediaEmbedder.php" />
     <Content Include="wp-content\plugins\mediaembeds\template.php" />
     <Content Include="wp-content\plugins\mediaembeds\template_raw.php" />
+    <Content Include="wp-content\mu-plugins\navisen-tagdiv-video-fix.php" />
+    <Content Include="wp-content\mu-plugins\navisen-tagdiv-fix\is-404-replacement.php" />
+    <Content Include="wp-content\mu-plugins\navisen-tagdiv-fix\youtube-api-get-videos-info-replacement.php" />
   </ItemGroup>
   <ItemGroup />
   <PropertyGroup>

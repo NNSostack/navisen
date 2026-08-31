@@ -630,64 +630,322 @@ function ruc_entra_get_memberships($access_token) {
         );
     }
 
-    $response = wp_remote_get(
-        'https://graph.microsoft.com/v1.0/me/memberOf?$select=id,displayName',
-        [
-            'timeout' => 20,
+    /**
+     * Start-URL.
+     *
+     * Vi beder eksplicit om op til 999 pr. side,
+     * men følger stadig @odata.nextLink hvis Graph
+     * vælger at returnere færre.
+     */
+    $url = 'https://graph.microsoft.com/v1.0/me/memberOf?$select=id,displayName&$top=999';
 
-            'headers' => [
-                'Accept'        => 'application/json',
-                'Authorization' => 'Bearer ' . $access_token,
-            ],
+    $memberships = [];
+    $page         = 1;
+
+    /**
+     * Safety-net så vi ikke kan ende i en uendelig loop.
+     */
+    $max_pages = 50;
+
+    ruc_entra_debug(
+        'Starter hentning af Entra memberships.',
+        [
+            'start_url' => $url,
         ]
     );
 
-    if (is_wp_error($response)) {
-        return $response;
+    while ($url && $page <= $max_pages) {
+
+        ruc_entra_debug(
+            'Henter Graph membership-side.',
+            [
+                'page' => $page,
+                'url'  => $url,
+            ]
+        );
+
+        $response = wp_remote_get(
+            $url,
+            [
+                'timeout' => 30,
+
+                'headers' => [
+                    'Accept'        => 'application/json',
+                    'Authorization' => 'Bearer ' . $access_token,
+                ],
+            ]
+        );
+
+
+        /**
+         * Transportfejl.
+         */
+        if (is_wp_error($response)) {
+
+            ruc_entra_debug(
+                'WP HTTP fejl ved hentning af memberships.',
+                [
+                    'page'  => $page,
+                    'error' => $response->get_error_message(),
+                ]
+            );
+
+            return $response;
+        }
+
+
+        $status  = wp_remote_retrieve_response_code($response);
+        $headers = wp_remote_retrieve_headers($response);
+        $body    = wp_remote_retrieve_body($response);
+
+        $data = json_decode(
+            $body,
+            true
+        );
+
+
+        /**
+         * Log HTTP-info.
+         */
+        ruc_entra_debug(
+            'Graph membership response modtaget.',
+            [
+                'page'        => $page,
+                'http_status' => $status,
+                'body_length' => strlen($body),
+
+                'request_id' =>
+                    isset($headers['request-id'])
+                        ? (string) $headers['request-id']
+                        : '',
+
+                'client_request_id' =>
+                    isset($headers['client-request-id'])
+                        ? (string) $headers['client-request-id']
+                        : '',
+            ]
+        );
+
+
+        /**
+         * JSON kunne ikke parses.
+         */
+        if (!is_array($data)) {
+
+            ruc_entra_debug(
+                'Graph returnerede ugyldigt JSON.',
+                [
+                    'page'       => $page,
+                    'json_error' => json_last_error_msg(),
+
+                    /**
+                     * Kun første 2000 tegn så loggen ikke eksploderer.
+                     */
+                    'body_preview' => substr(
+                        $body,
+                        0,
+                        2000
+                    ),
+                ]
+            );
+
+            return new WP_Error(
+                'graph_invalid_json',
+                'Microsoft Graph returnerede ugyldigt JSON.'
+            );
+        }
+
+
+        /**
+         * HTTP-fejl fra Graph.
+         */
+        if (
+            $status < 200 ||
+            $status >= 300
+        ) {
+
+            ruc_entra_debug(
+                'Microsoft Graph memberOf fejlede.',
+                [
+                    'page'   => $page,
+                    'status' => $status,
+                    'body'   => $data,
+                ]
+            );
+
+            return new WP_Error(
+                'graph_error',
+                'Kunne ikke hente Entra memberships.'
+            );
+        }
+
+
+        /**
+         * Antal objekter på DENNE side.
+         */
+        $page_memberships = [];
+
+        if (
+            isset($data['value']) &&
+            is_array($data['value'])
+        ) {
+            $page_memberships = $data['value'];
+        }
+
+
+        $page_count = count(
+            $page_memberships
+        );
+
+
+        /**
+         * Tilføj dem til det samlede array.
+         */
+        $memberships = array_merge(
+            $memberships,
+            $page_memberships
+        );
+
+
+        /**
+         * Find næste side.
+         */
+        $next_link =
+            !empty($data['@odata.nextLink'])
+                ? $data['@odata.nextLink']
+                : null;
+
+
+        /**
+         * Ekstra metadata fra Graph-response.
+         */
+        ruc_entra_debug(
+            'Graph membership-side behandlet.',
+            [
+                'page' => $page,
+
+                'antal_paa_denne_side' =>
+                    $page_count,
+
+                'samlet_antal_indtil_nu' =>
+                    count($memberships),
+
+                'har_next_link' =>
+                    $next_link ? 'JA' : 'NEJ',
+
+                'next_link' =>
+                    $next_link ?: '',
+
+                'response_keys' =>
+                    array_keys($data),
+
+                '@odata.count' =>
+                    $data['@odata.count'] ?? 'IKKE RETURNERET',
+            ]
+        );
+
+
+        /**
+         * Hvis der ikke er en nextLink, er vi færdige.
+         */
+        if (!$next_link) {
+
+            ruc_entra_debug(
+                'Ingen @odata.nextLink. Pagination afsluttet.',
+                [
+                    'page' =>
+                        $page,
+
+                    'samlet_antal' =>
+                        count($memberships),
+                ]
+            );
+
+            break;
+        }
+
+
+        /**
+         * Vigtigt:
+         *
+         * Brug HELE Microsoft's nextLink præcis som den kommer.
+         * Byg ikke selv skiptoken eller URL.
+         */
+        $url = $next_link;
+
+        $page++;
     }
 
-    $status = wp_remote_retrieve_response_code(
-        $response
-    );
 
-    $body = wp_remote_retrieve_body(
-        $response
-    );
-
-    $data = json_decode(
-        $body,
-        true
-    );
-
+    /**
+     * Hvis vi ramte safety-limit.
+     */
     if (
-        $status < 200 ||
-        $status >= 300
+        $page > $max_pages &&
+        $url
     ) {
 
         ruc_entra_debug(
-            'Microsoft Graph memberOf fejlede.',
+            'Pagination stoppet fordi max_pages blev nået.',
             [
-                'status' => $status,
-                'body'   => $data,
+                'max_pages' =>
+                    $max_pages,
+
+                'samlet_antal' =>
+                    count($memberships),
+
+                'sidste_url' =>
+                    $url,
             ]
         );
 
         return new WP_Error(
-            'graph_error',
-            'Kunne ikke hente Entra memberships.'
+            'graph_too_many_pages',
+            'Pagination stoppede efter for mange Graph-sider.'
         );
     }
 
-    if (
-        !isset($data['value']) ||
-        !is_array($data['value'])
-    ) {
-        return [];
+
+    /**
+     * Find evt. dubletter.
+     */
+    $ids = [];
+
+    foreach ($memberships as $membership) {
+
+        if (!empty($membership['id'])) {
+            $ids[] = strtolower(
+                $membership['id']
+            );
+        }
     }
 
-    return $data['value'];
-}
+    $unique_ids = array_unique($ids);
 
+
+    ruc_entra_debug(
+        'Alle Entra memberships færdigbehandlet.',
+        [
+            'samlet_antal' =>
+                count($memberships),
+
+            'antal_med_id' =>
+                count($ids),
+
+            'unikke_ids' =>
+                count($unique_ids),
+
+            'dubletter' =>
+                count($ids) - count($unique_ids),
+
+            'sidste_side' =>
+                $page,
+        ]
+    );
+
+
+    return $memberships;
+}
 
 /**
  * ============================================================
@@ -1011,7 +1269,7 @@ function ruc_entra_user_is_allowed($user = null) {
         );
 
         foreach ($memberships as $membership) {
-
+            error_log("Membership: " . $membership['id']);
             $membership_id = strtolower(
                 trim(
                     $membership['id'] ?? ''
