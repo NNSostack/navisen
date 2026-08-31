@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Navisen Simple Cache
  * Description: Simpel disk-cache til anonyme besøgende på Navisen.dk.
- * Version: 2.1.0
+ * Version: 2.1.2
  * Author: Navisen
  */
 
@@ -51,6 +51,7 @@ class Navisen_Simple_Cache
         add_action('admin_bar_menu', [__CLASS__, 'admin_bar'], 100);
 
         add_action('admin_post_navisen_clear_cache', [__CLASS__, 'manual_clear_cache']);
+        add_action('admin_post_navisen_refresh_page_cache', [__CLASS__, 'manual_refresh_page_cache']);
 
         register_activation_hook(__FILE__, [__CLASS__, 'activate']);
         register_deactivation_hook(__FILE__, [__CLASS__, 'clear_all_cache']);
@@ -194,6 +195,104 @@ class Navisen_Simple_Cache
 
         if (!is_dir($directory)) {
             return $html;
+        }
+
+        /**
+         * Ret Newspaper/tagDiv bogmærker på cachede sider.
+         *
+         * Scriptet bliver kun indsat i den HTML, som gemmes i cachen.
+         * Det opdaterer både antal favoritter og selected-state ud fra
+         * cookien tdb_favourites.
+         */
+        $bookmark_script = <<<'HTML'
+<script>
+(function () {
+
+    function getCookie(name) {
+        const prefix = name + '=';
+        const cookies = document.cookie.split(';');
+
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+
+            if (cookie.indexOf(prefix) === 0) {
+                return decodeURIComponent(
+                    cookie.substring(prefix.length)
+                );
+            }
+        }
+
+        return '';
+    }
+
+    function updateBookmarks() {
+        const cookieValue = getCookie('tdb_favourites');
+
+        const favourites = cookieValue
+            ? cookieValue
+                .split(',')
+                .map(function (id) {
+                    return id.trim();
+                })
+                .filter(Boolean)
+            : [];
+
+        document
+            .querySelectorAll('.tdb-wmf-count')
+            .forEach(function (element) {
+                element.textContent = favourites.length;
+            });
+
+        document
+            .querySelectorAll('.tdb-favorite[data-post-id]')
+            .forEach(function (button) {
+
+                const postId = String(
+                    button.getAttribute('data-post-id')
+                );
+
+                if (favourites.includes(postId)) {
+                    button.classList.add(
+                        'tdb-favorite-selected'
+                    );
+                } else {
+                    button.classList.remove(
+                        'tdb-favorite-selected'
+                    );
+                }
+
+            });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener(
+            'DOMContentLoaded',
+            updateBookmarks
+        );
+    } else {
+        updateBookmarks();
+    }
+
+    document.addEventListener('click', function (event) {
+
+        if (!event.target.closest('.tdb-favorite[data-post-id]')) {
+            return;
+        }
+
+        // Lad tagDiv opdatere tdb_favourites-cookien først.
+        setTimeout(updateBookmarks, 150);
+    });
+
+})();
+</script>
+HTML;
+
+        if (stripos($html, '</body>') !== false) {
+            $html = str_ireplace(
+                '</body>',
+                $bookmark_script . '</body>',
+                $html
+            );
         }
 
         /**
@@ -848,6 +947,102 @@ class Navisen_Simple_Cache
             'title' => 'Ryd Navisen cache',
             'href'  => $url,
         ]);
+
+        /**
+         * På frontend kan den aktuelle sides cache opdateres direkte.
+         */
+        if (!is_admin()) {
+            $current_url = home_url(wp_unslash($_SERVER['REQUEST_URI'] ?? '/'));
+
+            $refresh_url = wp_nonce_url(
+                add_query_arg(
+                    [
+                        'action' => 'navisen_refresh_page_cache',
+                        'url'    => $current_url,
+                    ],
+                    admin_url('admin-post.php')
+                ),
+                'navisen_refresh_page_cache'
+            );
+
+            $wp_admin_bar->add_node([
+                'id'     => 'navisen-refresh-page-cache',
+                'parent' => 'navisen-simple-cache',
+                'title'  => 'Opdater cache for denne side',
+                'href'   => $refresh_url,
+            ]);
+        }
+    }
+
+    /**
+     * Ryd og genopbyg cache for én bestemt side.
+     */
+    public static function manual_refresh_page_cache()
+    {
+        if (!current_user_can('manage_options')) {
+            wp_die('Ingen adgang.');
+        }
+
+        check_admin_referer('navisen_refresh_page_cache');
+
+        $url = isset($_GET['url'])
+            ? esc_url_raw(wp_unslash($_GET['url']))
+            : '';
+
+        if (!$url) {
+            wp_die('Ugyldig URL.');
+        }
+
+        /**
+         * Tillad kun URL'er på dette WordPress-site.
+         */
+        $site_host = wp_parse_url(home_url('/'), PHP_URL_HOST);
+        $url_host  = wp_parse_url($url, PHP_URL_HOST);
+
+        if (!$site_host || !$url_host || strtolower($site_host) !== strtolower($url_host)) {
+            wp_die('URL tilhører ikke dette website.');
+        }
+
+        /**
+         * Cache-pluginet cacher ikke query strings, så varm kun den rene URL.
+         */
+        $scheme = wp_parse_url($url, PHP_URL_SCHEME);
+        $host   = wp_parse_url($url, PHP_URL_HOST);
+        $port   = wp_parse_url($url, PHP_URL_PORT);
+        $path   = wp_parse_url($url, PHP_URL_PATH) ?: '/';
+
+        $clean_url = $scheme . '://' . $host;
+
+        if ($port) {
+            $clean_url .= ':' . $port;
+        }
+
+        $clean_url .= $path;
+
+        /**
+         * Fjern den eksisterende cachefil.
+         */
+        self::delete_url($clean_url);
+
+        /**
+         * Hent siden som anonym bruger. Da cachefilen lige er slettet,
+         * går requesten gennem WordPress og opretter en frisk cachefil.
+         */
+        wp_remote_get(
+            $clean_url,
+            [
+                'timeout'     => 20,
+                'redirection' => 3,
+                'cookies'     => [],
+                'headers'     => [
+                    'Cache-Control' => 'no-cache',
+                ],
+                'user-agent'  => 'Navisen Simple Cache Warmer/' . get_bloginfo('version'),
+            ]
+        );
+
+        wp_safe_redirect($clean_url);
+        exit;
     }
 
     /**

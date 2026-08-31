@@ -35,3 +35,8 @@
 {
     font-size: 140% !important;
 }
+
+/* Hide Skjul category */
+a.tdb-entry-category[href$="/category/skjul/"] {
+    display: none !important;
+}
