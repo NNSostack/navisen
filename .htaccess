@@ -1,6 +1,8 @@
 RewriteEngine On
 
 RewriteRule ^admin/?$ /wp-admin/ [R=301,L]
+RewriteRule ^wpadmin/?$ /wp-admin/ [R=301,L]
+RewriteRule ^login/?$ /wp-admin/ [R=301,L]
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_URI} \.(jpg|jpeg|png|gif|webp|svg)$ [NC]
